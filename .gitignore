@@ -1,9 +1,8 @@
 .log
 *.log
 
-out/
-*.out
-*.i*86
-*.x86_64
+!out
+out/*
+!out/.gitkeep
 
-main
+*.o
