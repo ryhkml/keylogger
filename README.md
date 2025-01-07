@@ -12,10 +12,10 @@ The primary purpose of this code is for demonstration and learning about the fun
 ## Usage
 
 ```sh
-cc main.c -o main
+cc main.c -o out/keylogger
 ```
 
-Use `sudo` to run
+Use `sudo` to run. The keylogger will display output in the terminal by default. Use the `-w` option to write the output to a .log file.
 
 ## Formatter
 
