@@ -92,27 +92,36 @@ const char *get_key_name(int key_code, bool shift_pressed, bool capslock_active)
     return "UNKNOWN";
 }
 
-char *find_keyboard_device() {
+char *find_keyboard_device(const char *target_device_name) {
     DIR *dir;
     struct dirent *ent;
     static char keyboard_path[BUFFER_SIZE];
+    const char base_path[] = "/dev/input/by-id/";
 
-    if ((dir = opendir("/dev/input/by-id")) == NULL) {
+    if ((dir = opendir(base_path)) == NULL) {
         perror("Cannot access /dev/input/by-id");
         return NULL;
     }
 
     while ((ent = readdir(dir)) != NULL) {
-        if (strstr(ent->d_name, "kbd") || strstr(ent->d_name, "keyboard")) {
-            if (strlen(ent->d_name) < (sizeof(keyboard_path) - strlen("/dev/input/by-id/") - 1)) {
-                strncpy(keyboard_path, "/dev/input/by-id/", sizeof(keyboard_path) - 1);
-                strncat(keyboard_path, ent->d_name, sizeof(keyboard_path) - strlen(keyboard_path) - 1);
-                keyboard_path[sizeof(keyboard_path) - 1] = '\0';  // Null-terminate
-                closedir(dir);
-                return keyboard_path;
+        if (strlen(ent->d_name) < (sizeof(keyboard_path) - strlen(base_path) - 1)) {
+            strncpy(keyboard_path, base_path, sizeof(keyboard_path) - 1);
+            strncat(keyboard_path, ent->d_name, sizeof(keyboard_path) - strlen(keyboard_path) - 1);
+            keyboard_path[sizeof(keyboard_path) - 1] = '\0';
+
+            if (target_device_name) {
+                if (strcmp(ent->d_name, target_device_name) == 0) {
+                    closedir(dir);
+                    return keyboard_path;
+                }
             } else {
-                fprintf(stderr, "Device name too long: %s\n", ent->d_name);
+                if (strstr(ent->d_name, "kbd") || strstr(ent->d_name, "keyboard")) {
+                    closedir(dir);
+                    return keyboard_path;
+                }
             }
+        } else {
+            fprintf(stderr, "Device name too long: %s\n", ent->d_name);
         }
     }
 

@@ -16,13 +16,24 @@ int main(int argc, char *argv[]) {
     bool shift_pressed = false, ctrl_pressed = false, meta_pressed = false, alt_pressed = false,
          capslock_active = false, log_to_file = false;
 
-    if (argc > 1 && strcmp(argv[1], "-w") == 0) {
-        log_to_file = true;
+    const char *target_device_name = NULL;
+
+    for (int i = 1; i < argc; i++) {
+        if (strcmp(argv[i], "-w") == 0) {
+            log_to_file = true;
+        } else if (strcmp(argv[i], "-dev") == 0 && (i + 1) < argc) {
+            target_device_name = argv[++i];
+        }
     }
 
-    char *keyboard_path = find_keyboard_device();
+    char *keyboard_path = find_keyboard_device(target_device_name);
     if (!keyboard_path) {
-        fprintf(stderr, "No keyboard device found\n");
+        fprintf(stderr, "No keyboard device found");
+        if (target_device_name) {
+            fprintf(stderr, " with name: %s\n", target_device_name);
+        } else {
+            fprintf(stderr, "\n");
+        }
         return EXIT_FAILURE;
     }
 
