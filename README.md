@@ -26,9 +26,9 @@ sudo out/keylogger -dev usb-Keychron_Keychron_K11_Pro-event-kbd
 `~/.clang-format` base from [Google](https://google.github.io/styleguide/cppguide.html)
 
 ```
-BasedOnStyle: Google                                                                                                                                                                                            │
-IndentWidth: 4                                                                                                                                                                                                  │
+BasedOnStyle: Google
+IndentWidth: 4
 ColumnLimit: 120
 ```
 
-**In Google i trust**
+_In Google i trust_
