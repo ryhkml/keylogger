@@ -11,7 +11,15 @@ The primary purpose of this code is for demonstration and learning about the fun
 make
 ```
 
-Use `sudo` to run. The keylogger will display output in the terminal by default. Use the `-w` option to write the output to a .log file.
+Use `sudo` to run. The keylogger will display output in the terminal by default. Use the `-w` option to write the output to a `.log` file.
+
+If target device is incorrect. Use the `-dev <NAME>` option to specify a device. List available devices with `ls -l /dev/input/by-id/`
+
+Example:
+
+```
+sudo out/keylogger -dev usb-Keychron_Keychron_K11_Pro-event-kbd
+```
 
 ## Formatter
 
