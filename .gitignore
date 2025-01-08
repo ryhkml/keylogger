@@ -6,3 +6,6 @@ out/*
 !out/.gitkeep
 
 *.o
+
+diff.txt
+note.txt
