@@ -71,12 +71,18 @@ int main(int argc, char *argv[]) {
                 } else if (event.code == KEY_LEFTALT || event.code == KEY_RIGHTALT) {
                     alt_pressed = event.value;
                 }
-                // Update Caps Lock status (toggle)
-                if (event.code == KEY_CAPSLOCK && event.value == 1) {
-                    capslock_active = !capslock_active;
-                }
-                // Handle key press
-                if (event.value == 1) {
+                // Log modifier keys independently
+                if (event.value == 1) {  // Key press
+                    if (event.code == KEY_LEFTSHIFT || event.code == KEY_RIGHTSHIFT) {
+                        log_key(fp, shift_pressed, ctrl_pressed, meta_pressed, alt_pressed, log_to_file, "Shift");
+                    } else if (event.code == KEY_LEFTCTRL || event.code == KEY_RIGHTCTRL) {
+                        log_key(fp, shift_pressed, ctrl_pressed, meta_pressed, alt_pressed, log_to_file, "Ctrl");
+                    } else if (event.code == KEY_LEFTMETA || event.code == KEY_RIGHTMETA) {
+                        log_key(fp, shift_pressed, ctrl_pressed, meta_pressed, alt_pressed, log_to_file, "Meta");
+                    } else if (event.code == KEY_LEFTALT || event.code == KEY_RIGHTALT) {
+                        log_key(fp, shift_pressed, ctrl_pressed, meta_pressed, alt_pressed, log_to_file, "Alt");
+                    }
+                    // Log other keys
                     const char *key_name = get_key_name(event.code, shift_pressed, capslock_active);
                     if (strcmp(key_name, "UNKNOWN") != 0) {
                         log_key(fp, shift_pressed, ctrl_pressed, meta_pressed, alt_pressed, log_to_file, key_name);
