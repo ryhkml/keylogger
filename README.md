@@ -2,8 +2,8 @@
 
 ![Keylogger screenshot](./sample.png)
 
-This is a simple implementation of a keylogger that records keyboard input.
-The primary purpose of this code is for demonstration and learning about the fundamental concepts involved in creating a keylogger in a Linux environment.
+This is an implementation of a keylogger that records keyboard input.
+The primary purpose of this code is for demonstration and to understand the concepts involved in creating a keylogger in a Linux environment.
 
 ## Usage
 
@@ -17,7 +17,7 @@ If target device is incorrect. Use the `-dev <NAME>` option to specify a device.
 
 Example:
 
-```
+```sh
 sudo out/keylogger -dev usb-Keychron_Keychron_K11_Pro-event-kbd
 ```
 
