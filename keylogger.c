@@ -5,7 +5,9 @@
 #include <stdio.h>
 #include <string.h>
 
-const KeyMap key_map[] = {
+#define KEY_MAP_SIZE 128
+
+const KeyMap key_map[KEY_MAP_SIZE] = {
     [KEY_A] = {"a", "A"},
     [KEY_B] = {"b", "B"},
     [KEY_C] = {"c", "C"},
@@ -77,15 +79,14 @@ const KeyMap key_map[] = {
     [KEY_LEFT] = {"Arrow Left", "Arrow Left"},
     [KEY_RIGHT] = {"Arrow Right", "Arrow Right"},
     [KEY_CAPSLOCK] = {"CapsLock", "CapsLock"},
+    [KEY_HOME] = {"Home", "Home"},
+    [KEY_DELETE] = {"Del", "Del"},
 };
 
 const char *get_key_name(int key_code, bool shift_pressed, bool capslock_active) {
-    if (key_code >= 0 && (size_t)key_code < sizeof(key_map) / sizeof(key_map[0]) && key_map[key_code].normal != NULL) {
+    if (key_code >= 0 && key_code < KEY_MAP_SIZE && key_map[key_code].normal != NULL) {
         if (key_code >= KEY_A && key_code <= KEY_Z) {
-            if (capslock_active != shift_pressed) {
-                return key_map[key_code].shifted;
-            }
-            return key_map[key_code].normal;
+            return (capslock_active != shift_pressed) ? key_map[key_code].shifted : key_map[key_code].normal;
         }
         return shift_pressed ? key_map[key_code].shifted : key_map[key_code].normal;
     }
@@ -97,6 +98,7 @@ char *find_keyboard_device(const char *target_device_name) {
     struct dirent *ent;
     static char keyboard_path[BUFFER_SIZE];
     const char base_path[] = "/dev/input/by-id/";
+    size_t base_path_len = strlen(base_path);
 
     if ((dir = opendir(base_path)) == NULL) {
         perror("Cannot access /dev/input/by-id");
@@ -104,11 +106,9 @@ char *find_keyboard_device(const char *target_device_name) {
     }
 
     while ((ent = readdir(dir)) != NULL) {
-        if (strlen(ent->d_name) < (sizeof(keyboard_path) - strlen(base_path) - 1)) {
-            strncpy(keyboard_path, base_path, sizeof(keyboard_path) - 1);
-            strncat(keyboard_path, ent->d_name, sizeof(keyboard_path) - strlen(keyboard_path) - 1);
-            keyboard_path[sizeof(keyboard_path) - 1] = '\0';
-
+        size_t ent_name_len = strlen(ent->d_name);
+        if (base_path_len + ent_name_len < sizeof(keyboard_path)) {
+            snprintf(keyboard_path, sizeof(keyboard_path), "%s%s", base_path, ent->d_name);
             if (target_device_name) {
                 if (strcmp(ent->d_name, target_device_name) == 0) {
                     closedir(dir);
