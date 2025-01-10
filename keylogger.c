@@ -84,9 +84,12 @@ const KeyMap key_map[KEY_MAP_SIZE] = {
 };
 
 const char *get_key_name(int key_code, bool shift_pressed, bool capslock_active) {
-    if (key_code >= 0 && key_code < KEY_MAP_SIZE && key_map[key_code].normal != NULL) {
+    if (key_code >= 0 && (size_t)key_code < sizeof(key_map) / sizeof(key_map[0]) && key_map[key_code].normal != NULL) {
         if (key_code >= KEY_A && key_code <= KEY_Z) {
-            return (capslock_active != shift_pressed) ? key_map[key_code].shifted : key_map[key_code].normal;
+            if (capslock_active != shift_pressed) {
+                return key_map[key_code].shifted;
+            }
+            return key_map[key_code].normal;
         }
         return shift_pressed ? key_map[key_code].shifted : key_map[key_code].normal;
     }

