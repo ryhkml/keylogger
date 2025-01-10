@@ -5,7 +5,7 @@
 This is an implementation of a keylogger that records keyboard input.
 The primary purpose of this code is for demonstration and to understand the concepts involved in creating a keylogger in a Linux environment.
 
-## Usage
+## Build and Usage
 
 ```sh
 make
