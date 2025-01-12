@@ -1,4 +1,3 @@
-CC = gcc
 CFLAGS = -O2 -Wall -Wextra -std=c11
 
 TARGET = out/keylogger
