@@ -132,8 +132,7 @@ char *find_keyboard_device(const char *target_device_name) {
     return NULL;
 }
 
-void log_key(FILE *fp, bool shift_pressed, bool ctrl_pressed, bool meta_pressed, bool alt_pressed, bool log_to_file,
-             const char *key_name) {
+void log_key(FILE *fp, bool ctrl_pressed, bool meta_pressed, bool alt_pressed, bool log_to_file, const char *key_name) {
     bool is_modifier = (strcmp(key_name, "Shift") == 0 || strcmp(key_name, "Ctrl") == 0 ||
                         strcmp(key_name, "Meta") == 0 || strcmp(key_name, "Alt") == 0);
 
@@ -141,7 +140,6 @@ void log_key(FILE *fp, bool shift_pressed, bool ctrl_pressed, bool meta_pressed,
         if (is_modifier) {
             fprintf(fp, "%s\n", key_name);
         } else {
-            if (shift_pressed) fprintf(fp, "Shift+");
             if (ctrl_pressed) fprintf(fp, "Ctrl+");
             if (meta_pressed) fprintf(fp, "Meta+");
             if (alt_pressed) fprintf(fp, "Alt+");
@@ -152,7 +150,6 @@ void log_key(FILE *fp, bool shift_pressed, bool ctrl_pressed, bool meta_pressed,
         if (is_modifier) {
             printf("%s\n", key_name);
         } else {
-            if (shift_pressed) printf("Shift+");
             if (ctrl_pressed) printf("Ctrl+");
             if (meta_pressed) printf("Meta+");
             if (alt_pressed) printf("Alt+");
