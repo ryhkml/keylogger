@@ -5,6 +5,8 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "behavior_subject.h"
+
 #define KEY_MAP_SIZE 128
 
 const KeyMap key_map[KEY_MAP_SIZE] = {
@@ -132,28 +134,25 @@ char *find_keyboard_device(const char *target_device_name) {
     return NULL;
 }
 
-void log_key(FILE *fp, bool ctrl_pressed, bool meta_pressed, bool alt_pressed, bool log_to_file, const char *key_name) {
+void log_key(FILE *fp, BehaviorSubject *subject, bool ctrl_pressed, bool meta_pressed, bool alt_pressed,
+             const char *key_name) {
+    char combined_key[BUFFER_SIZE];
+    combined_key[0] = '\0';
+
     bool is_modifier = (strcmp(key_name, "Shift") == 0 || strcmp(key_name, "Ctrl") == 0 ||
                         strcmp(key_name, "Meta") == 0 || strcmp(key_name, "Alt") == 0);
 
-    if (log_to_file) {
-        if (is_modifier) {
-            fprintf(fp, "%s\n", key_name);
-        } else {
-            if (ctrl_pressed) fprintf(fp, "Ctrl+");
-            if (meta_pressed) fprintf(fp, "Meta+");
-            if (alt_pressed) fprintf(fp, "Alt+");
-            fprintf(fp, "%s\n", key_name);
-        }
-        fflush(fp);
+    if (is_modifier) {
+        next(subject, key_name);
+        fprintf(fp, "%s\n", key_name);
     } else {
-        if (is_modifier) {
-            printf("%s\n", key_name);
-        } else {
-            if (ctrl_pressed) printf("Ctrl+");
-            if (meta_pressed) printf("Meta+");
-            if (alt_pressed) printf("Alt+");
-            printf("%s\n", key_name);
-        }
+        if (ctrl_pressed) strcat(combined_key, "Ctrl+");
+        if (meta_pressed) strcat(combined_key, "Meta+");
+        if (alt_pressed) strcat(combined_key, "Alt+");
+        strcat(combined_key, key_name);
+        next(subject, combined_key);
+        fprintf(fp, "%s\n", combined_key);
     }
+
+    fflush(fp);
 }
