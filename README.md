@@ -11,14 +11,13 @@ The primary purpose of this code is for demonstration and to understand the conc
 make
 ```
 
-Use `sudo` to run. The keylogger will display output in the terminal by default. Use the `-w` option to write the output to a `/tmp/.keylogger.log` file.
-
-If target device is incorrect. Use the `-dev <NAME>` option to specify a device. List available devices with `ls -l /dev/input/by-id/`
+Use `sudo` to run. The keylogger will display output to a `/tmp/.keylogger.log` file.
+If target device is incorrect. Use the `--dev <NAME>` option to specify a device. List available devices with `ls -l /dev/input/by-id/`
 
 Example:
 
 ```sh
-sudo out/keylogger -dev usb-Keychron_Keychron_K11_Pro-event-kbd
+sudo out/keylogger --dev usb-Keychron_Keychron_K11_Pro-event-kbd
 ```
 
 #### Rootless
