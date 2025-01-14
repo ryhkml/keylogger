@@ -14,15 +14,15 @@
 
 static volatile sig_atomic_t keep_running = true;
 
-void notify(const char *key);
-void signal_handler(int signum);
+void notify_key(const char *key);
+void signal_handler();
 
 int main(int argc, char *argv[]) {
     const char *target_device_name = NULL;
 
     for (int i = 1; i < argc; i++) {
-        if (strcmp(argv[i], "--dev") == 0) {
-            target_device_name = argv[++i];
+        if (strcmp(argv[i], "--dev") == 0 && i + 1 < argc) {
+            target_device_name = argv[i + 1];
         }
     }
 
@@ -48,7 +48,7 @@ int main(int argc, char *argv[]) {
     int fd = open(keyboard_path, O_RDONLY);
     if (fd == -1) {
         perror("Cannot open keyboard device");
-        if (fp) fclose(fp);
+        fclose(fp);
         return EXIT_FAILURE;
     }
 
@@ -58,8 +58,7 @@ int main(int argc, char *argv[]) {
 
     BehaviorSubject subject;
     init_behavior_subject(&subject, "SKIP");
-
-    subscribe(&subject, notify);
+    subscribe(&subject, notify_key);
 
     signal(SIGTERM, signal_handler);
     signal(SIGINT, signal_handler);
@@ -105,28 +104,17 @@ int main(int argc, char *argv[]) {
     }
 
     unsubscribe(&subject);
-
-    if (close(fd) == -1) {
-        perror("Error closing keyboard device");
-    }
-    if (fp) {
-        if (fclose(fp) == -1) {
-            perror("Error closing log file");
-        }
-    }
+    close(fd);
+    fclose(fp);
 
     return EXIT_SUCCESS;
 }
 
-void notify(const char *key) {
+void notify_key(const char *key) {
     if (strcmp(key, "SKIP") == 0) {
         return;
     }
     // printf("%s\n", key);
 }
 
-void signal_handler(int signum) {
-    if (signum == SIGTERM || signum == SIGINT) {
-        keep_running = false;
-    }
-}
+void signal_handler() { keep_running = false; }
