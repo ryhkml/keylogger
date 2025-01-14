@@ -19,7 +19,6 @@ void signal_handler();
 
 int main(int argc, char *argv[]) {
     const char *target_device_name = NULL;
-
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "--dev") == 0 && i + 1 < argc) {
             target_device_name = argv[i + 1];
@@ -63,10 +62,12 @@ int main(int argc, char *argv[]) {
     signal(SIGTERM, signal_handler);
     signal(SIGINT, signal_handler);
 
+    char state_key_name[16];
     while (keep_running) {
         ssize_t bytes_read = read(fd, &event, sizeof(event));
         if (bytes_read == sizeof(event)) {
             if (event.type == EV_KEY) {
+                state_key_name[0] = '\0';
                 // Update status modifier keys
                 if (event.code == KEY_LEFTSHIFT || event.code == KEY_RIGHTSHIFT) {
                     shift_pressed = event.value;
@@ -79,26 +80,31 @@ int main(int argc, char *argv[]) {
                 }
                 // Log modifier keys independently
                 if (event.value == 1) {
-                    const char *key_name = get_key_name(event.code, shift_pressed, capslock_active);
                     if (event.code == KEY_CAPSLOCK) {
                         capslock_active = !capslock_active;
                     }
                     if (event.code == KEY_LEFTSHIFT || event.code == KEY_RIGHTSHIFT) {
-                        log_key(fp, &subject, ctrl_pressed, meta_pressed, alt_pressed, "Shift");
+                        strcat(state_key_name, "Shift");
                     } else if (event.code == KEY_LEFTCTRL || event.code == KEY_RIGHTCTRL) {
-                        log_key(fp, &subject, ctrl_pressed, meta_pressed, alt_pressed, "Ctrl");
+                        strcat(state_key_name, "Ctrl");
                     } else if (event.code == KEY_LEFTMETA || event.code == KEY_RIGHTMETA) {
-                        log_key(fp, &subject, ctrl_pressed, meta_pressed, alt_pressed, "Meta");
+                        strcat(state_key_name, "Meta");
                     } else if (event.code == KEY_LEFTALT || event.code == KEY_RIGHTALT) {
-                        log_key(fp, &subject, ctrl_pressed, meta_pressed, alt_pressed, "Alt");
+                        strcat(state_key_name, "Alt");
+                    }
+                    if (state_key_name[0] != '\0') {
+                        log_key(fp, &subject, ctrl_pressed, meta_pressed, alt_pressed, state_key_name);
                     }
                     // Log other keys
+                    const char *key_name = get_key_name(event.code, shift_pressed, capslock_active);
                     if (strcmp(key_name, "UNKNOWN") != 0) {
-                        log_key(fp, &subject, ctrl_pressed, meta_pressed, alt_pressed, key_name);
+                        strcat(state_key_name, key_name);
+                        log_key(fp, &subject, ctrl_pressed, meta_pressed, alt_pressed, state_key_name);
                     }
                 }
             }
         } else if (bytes_read == -1) {
+            memset(state_key_name, 0, 16);
             break;
         }
     }
