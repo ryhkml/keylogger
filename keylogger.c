@@ -80,20 +80,19 @@ const KeyMap key_map[KEY_MAP_SIZE] = {
     [KEY_DOWN] = {"Arrow Down", "Arrow Down"},
     [KEY_LEFT] = {"Arrow Left", "Arrow Left"},
     [KEY_RIGHT] = {"Arrow Right", "Arrow Right"},
-    [KEY_CAPSLOCK] = {"CapsLock", "CapsLock"},
     [KEY_HOME] = {"Home", "Home"},
     [KEY_DELETE] = {"Del", "Del"},
+    // To detect upper and lower case letters combined with the shift key
+    // Capslock key must be at the end
+    [KEY_CAPSLOCK] = {"CapsLock", "CapsLock"},
 };
 
 const char *get_key_name(int key_code, bool shift_pressed, bool capslock_active) {
     if (key_code >= 0 && (size_t)key_code < sizeof(key_map) / sizeof(key_map[0]) && key_map[key_code].normal != NULL) {
-        if (key_code >= KEY_A && key_code <= KEY_Z) {
-            if (capslock_active != shift_pressed) {
-                return key_map[key_code].shifted;
-            }
-            return key_map[key_code].normal;
+        if ((capslock_active && !shift_pressed) || (!capslock_active && shift_pressed)) {
+            return key_map[key_code].shifted;
         }
-        return shift_pressed ? key_map[key_code].shifted : key_map[key_code].normal;
+        return key_map[key_code].normal;
     }
     return "UNKNOWN";
 }
