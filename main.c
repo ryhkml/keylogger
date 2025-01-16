@@ -52,8 +52,12 @@ int main(int argc, char *argv[]) {
     }
 
     struct input_event event;
+    // Attention!
+    // If you enable capslock before the program runs, the key names will be reversed.
+    // Make sure capslock is turned off by default.
+    // Programmatically detecting capslock status on the keyboard directly is not currently possible.
     bool shift_pressed = false, ctrl_pressed = false, meta_pressed = false, alt_pressed = false,
-         capslock_active = false;
+         capslock_active = false, state_capslock_active = false;
 
     BehaviorSubject subject;
     init_behavior_subject(&subject, "SKIP");
@@ -81,25 +85,32 @@ int main(int argc, char *argv[]) {
                 // Log modifier keys independently
                 if (event.value == 1) {
                     if (event.code == KEY_CAPSLOCK) {
-                        capslock_active = !capslock_active;
-                    }
-                    if (event.code == KEY_LEFTSHIFT || event.code == KEY_RIGHTSHIFT) {
-                        strcat(state_key_name, "Shift");
-                    } else if (event.code == KEY_LEFTCTRL || event.code == KEY_RIGHTCTRL) {
-                        strcat(state_key_name, "Ctrl");
-                    } else if (event.code == KEY_LEFTMETA || event.code == KEY_RIGHTMETA) {
-                        strcat(state_key_name, "Meta");
-                    } else if (event.code == KEY_LEFTALT || event.code == KEY_RIGHTALT) {
-                        strcat(state_key_name, "Alt");
-                    }
-                    if (state_key_name[0] != '\0') {
+                        state_capslock_active = !state_capslock_active;
+                        capslock_active = state_capslock_active;
+                        strcat(state_key_name, "CapsLock");
                         log_key(fp, &subject, ctrl_pressed, meta_pressed, alt_pressed, state_key_name);
-                    }
-                    // Log other keys
-                    const char *key_name = get_key_name(event.code, shift_pressed, capslock_active);
-                    if (strcmp(key_name, "UNKNOWN") != 0) {
-                        strcat(state_key_name, key_name);
-                        log_key(fp, &subject, ctrl_pressed, meta_pressed, alt_pressed, state_key_name);
+                    } else {
+                        if (event.code == KEY_LEFTSHIFT || event.code == KEY_RIGHTSHIFT) {
+                            capslock_active = false;
+                            strcat(state_key_name, "Shift");
+                        } else if (event.code == KEY_LEFTCTRL || event.code == KEY_RIGHTCTRL) {
+                            strcat(state_key_name, "Ctrl");
+                        } else if (event.code == KEY_LEFTMETA || event.code == KEY_RIGHTMETA) {
+                            strcat(state_key_name, "Meta");
+                        } else if (event.code == KEY_LEFTALT || event.code == KEY_RIGHTALT) {
+                            strcat(state_key_name, "Alt");
+                        } else if (state_capslock_active) {
+                            capslock_active = state_capslock_active;
+                        }
+                        if (state_key_name[0] != '\0') {
+                            log_key(fp, &subject, ctrl_pressed, meta_pressed, alt_pressed, state_key_name);
+                        }
+                        // Log other keys
+                        const char *key_name = get_key_name(event.code, shift_pressed, capslock_active);
+                        if (strcmp(key_name, "UNKNOWN") != 0) {
+                            strcat(state_key_name, key_name);
+                            log_key(fp, &subject, ctrl_pressed, meta_pressed, alt_pressed, state_key_name);
+                        }
                     }
                 }
             }

