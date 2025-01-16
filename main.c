@@ -109,6 +109,7 @@ int main(int argc, char *argv[]) {
         }
     }
 
+    free(keyboard_path);
     unsubscribe(&subject);
     close(fd);
     fclose(fp);
