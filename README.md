@@ -12,12 +12,12 @@ make
 ```
 
 Use `sudo` to run. The keylogger will display output to a `/tmp/.keylogger.log` file.
-If target device is incorrect. Use the `--dev <NAME>` option to specify a device. List available devices with `ls -l /dev/input/by-id/`
+If target device is incorrect. Use the `--dev <PATH>` option to specify a device event. List available devices run `ls -l /dev/input/by-id/`
 
 Example:
 
 ```sh
-sudo out/keylogger --dev usb-Keychron_Keychron_K11_Pro-event-kbd
+sudo out/keylogger --dev /dev/input/event7
 ```
 
 #### Rootless
@@ -29,22 +29,10 @@ sudo out/keylogger --dev usb-Keychron_Keychron_K11_Pro-event-kbd
 
 To run rootless, follow these steps:
 
-1. Create and add user to groups
+1. Create a udev rules file (for example, /etc/udev/rules.d/90-keylogger.rules)
 
     ```sh
-    sudo usermod -aG <GROUP_NAME> $USER
-    ```
-
-1. Create a udev rules file (for example, /etc/udev/rules.d/90-keylogger.rules). Fill the file with the following rules
-
-    ```txt
-    KERNEL=="event*", SUBSYSTEM=="input", ATTRS{idVendor}==<VENDOR_ID>, ATTRS{idProduct}==<PRODUCT_ID>, MODE="0660", GROUP=<GROUP_NAME>
-    ```
-
-    To find out the vendor ID and product ID, run the `lsusb` command. The response is as follows:
-
-    ```txt
-    Bus ... Device ...: ID <THIS_IS_VENDOR_ID>:<THIS_IS_PRODUCT_ID> ...
+    echo "SUBSYSTEM==\"input\", OWNER=\"$USER\", MODE=\"0660\"" | sudo tee /etc/udev/90-keylogger.rules > /dev/null
     ```
 
 1. Reload udev rules
@@ -52,7 +40,6 @@ To run rootless, follow these steps:
     sudo udevadm control --reload-rules
     sudo udevadm trigger
     ```
-1. Log out, then log back in to apply your group changes
 
 ## Formatter
 
