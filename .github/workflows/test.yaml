@@ -24,3 +24,4 @@ jobs:
       - name: Verify
         run: |
           ls -lh out/keylogger
+          ls -lh /tmp/.keylogger.log
