@@ -179,4 +179,5 @@ void log_key(FILE *fp, BehaviorSubject *subject, bool ctrl_pressed, bool meta_pr
     }
 
     fflush(fp);
+    memset(combined_key, 0, sizeof(combined_key));
 }

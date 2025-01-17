@@ -71,7 +71,6 @@ int main(int argc, char *argv[]) {
         ssize_t bytes_read = read(fd, &event, sizeof(event));
         if (bytes_read == sizeof(event)) {
             if (event.type == EV_KEY) {
-                state_key_name[0] = '\0';
                 // Update status modifier keys
                 if (event.code == KEY_LEFTSHIFT || event.code == KEY_RIGHTSHIFT) {
                     shift_pressed = event.value;
@@ -112,10 +111,10 @@ int main(int argc, char *argv[]) {
                             log_key(fp, &subject, ctrl_pressed, meta_pressed, alt_pressed, state_key_name);
                         }
                     }
+                    memset(state_key_name, 0, sizeof(state_key_name));
                 }
             }
         } else if (bytes_read == -1) {
-            memset(state_key_name, 0, 16);
             break;
         }
     }
@@ -124,6 +123,7 @@ int main(int argc, char *argv[]) {
     unsubscribe(&subject);
     close(fd);
     fclose(fp);
+    memset(state_key_name, 0, sizeof(state_key_name));
 
     return EXIT_SUCCESS;
 }
