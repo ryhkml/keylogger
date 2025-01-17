@@ -2,8 +2,9 @@
 
 ![Keylogger screenshot](./sample.png)
 
-This is an implementation of a keylogger that records keyboard input.
-The primary purpose of this code is for demonstration and to understand the concepts involved in creating a keylogger in a Linux environment.
+## Requirement
+
+1. libwebsockets
 
 ## Build and Usage
 
@@ -12,6 +13,7 @@ make
 ```
 
 Use `sudo` to run. The keylogger will display output to a `/tmp/.keylogger.log` file.
+You can also get output via websocket on port 33300.
 If target device is incorrect. Use the `--dev <PATH>` option to specify a device event. List available devices run `ls -l /dev/input/by-id/`
 
 Example:
