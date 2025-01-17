@@ -14,7 +14,10 @@ jobs:
       - name: Run and terminate
         run: |
           if [ -d /dev/input ]; then
-            timeout 3s sudo out/keylogger
+            sudo out/keylogger &
+            STATE_PID=$!
+            sleep 3
+            sudo pkill -SIGINT $STATE_PID
           else
             echo "No device"
           fi
