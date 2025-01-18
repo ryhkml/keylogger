@@ -51,10 +51,10 @@ struct lws_protocols protocols[] = {{
                                     },
                                     {NULL, NULL, 0, 0}};
 
-int init_websocket_server() {
+int init_websocket_server(int port) {
     struct lws_context_creation_info info;
     memset(&info, 0, sizeof(info));
-    info.port = PORT;
+    info.port = port;
     info.protocols = protocols;
     info.gid = -1;
     info.uid = -1;

@@ -14,15 +14,27 @@
 #include "websocket.h"
 
 static volatile sig_atomic_t keep_running = true;
+static bool websocket_active = false;
+static bool printk_active = false;
 
 void notify_key(const char *key);
 void signal_handler();
 
 int main(int argc, char *argv[]) {
     const char *target_device_name = NULL;
+    int port = 33300;
     for (int i = 1; i < argc; i++) {
+        // Device option
         if (strcmp(argv[i], "--dev") == 0 && i + 1 < argc) {
             target_device_name = argv[i + 1];
+            // Print key option
+        } else if (strcmp(argv[i], "--printk") == 0) {
+            printk_active = true;
+            // Websocket option
+        } else if (strcmp(argv[i], "--ws") == 0) {
+            websocket_active = true;
+        } else if (strcmp(argv[i], "--port") == 0 && i + 1 < argc && websocket_active) {
+            port = atoi(argv[i + 1]);
         }
     }
 
@@ -69,17 +81,22 @@ int main(int argc, char *argv[]) {
     signal(SIGTERM, signal_handler);
     signal(SIGINT, signal_handler);
 
-    if (init_websocket_server() != 0) {
-        free(keyboard_path);
-        close(fd);
-        fclose(fp);
-        unsubscribe(&subject);
-        return EXIT_FAILURE;
+    if (websocket_active) {
+        printf("Websocket listening on port: %d\n", port);
+        if (init_websocket_server(port) != 0) {
+            free(keyboard_path);
+            close(fd);
+            fclose(fp);
+            unsubscribe(&subject);
+            return EXIT_FAILURE;
+        }
     }
 
     char state_key_name[16];
     while (keep_running) {
-        lws_service(context, 0);
+        if (websocket_active) {
+            lws_service(context, 0);
+        }
         ssize_t bytes_read = read(fd, &event, sizeof(event));
         if (bytes_read == sizeof(event)) {
             if (event.type == EV_KEY) {
@@ -146,10 +163,12 @@ void notify_key(const char *key) {
     if (strcmp(key, "SKIP") == 0) {
         return;
     }
-    //
-    // printf("%s\n", key);
-    //
-    send_message_to_client(key);
+    if (printk_active) {
+        printf("%s\n", key);
+    }
+    if (websocket_active) {
+        send_message_to_client(key);
+    }
 }
 
 void signal_handler() { keep_running = false; }
