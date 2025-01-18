@@ -4,7 +4,7 @@
 
 ## Requirement
 
-1. libwebsockets
+1. [libwebsockets](https://libwebsockets.org)
 
 ## Build and Usage
 
@@ -12,8 +12,7 @@
 make
 ```
 
-Use `sudo` to run. The keylogger will display output to a `/tmp/.keylogger.log` file.
-You can also get output via websocket on port 33300.
+Use `sudo` to run. The keylogger will display output to a `/tmp/.keylogger.log` file. You can also get output via websocket.
 If target device is incorrect. Use the `--dev <PATH>` option to specify a device event. List available devices run `ls -l /dev/input/by-id/`
 
 Example:
@@ -22,7 +21,16 @@ Example:
 sudo out/keylogger --dev /dev/input/event7
 ```
 
-#### Rootless
+There is a list of options available
+
+| Option     | Default value       | Description                          |
+| ---------- | ------------------- | ------------------------------------ |
+| `--dev`    | `/dev/input/event*` | Specify device event                 |
+| `--printk` |                     | Show the pressed key in the terminal |
+| `--ws`     |                     | Use websocket                        |
+| `--port`   | `33300`             | Specify websocket port               |
+
+### Rootless
 
 > [!WARNING]
 >
