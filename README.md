@@ -42,7 +42,7 @@ To run rootless, follow these steps:
 1. Create a udev rules file (for example, /etc/udev/rules.d/90-keylogger.rules)
 
     ```sh
-    echo "SUBSYSTEM==\"input\", OWNER=\"$USER\", MODE=\"0660\"" | sudo tee /etc/udev/90-keylogger.rules > /dev/null
+    echo "SUBSYSTEM==\"input\", OWNER=\"$USER\", MODE=\"0660\"" | sudo tee /etc/udev/rules.d/90-keylogger.rules > /dev/null
     ```
 
 1. Reload udev rules
