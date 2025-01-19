@@ -23,12 +23,12 @@ sudo out/keylogger --dev /dev/input/event7
 
 There is a list of options available
 
-| Option     | Default value       | Description                          |
-| ---------- | ------------------- | ------------------------------------ |
-| `--dev`    | `/dev/input/event*` | Specify device event                 |
-| `--printk` |                     | Show the pressed key in the terminal |
-| `--ws`     |                     | Use websocket                        |
-| `--port`   | `33300`             | Specify websocket port               |
+| Option     | Default Value       | Description                     |
+| ---------- | ------------------- | ------------------------------- |
+| `--dev`    | `/dev/input/event*` | Specify the device event to use |
+| `--printk` |                     | Show keystrokes in terminal     |
+| `--ws`     |                     | Enable websocket                |
+| `--port`   | `33300`             | Specify websocket port          |
 
 ### Rootless
 
