@@ -7,6 +7,8 @@ struct lws *client_wsi = NULL;
 
 int callback_websocket(struct lws *wsi, enum lws_callback_reasons reason, void *user, void *in, size_t len) {
     struct per_session_data *psd = (struct per_session_data *)user;
+    (void)in;
+    (void)len;
     switch (reason) {
         case LWS_CALLBACK_ESTABLISHED:
             printf("Client connected\n");
@@ -48,8 +50,9 @@ struct lws_protocols protocols[] = {{
                                         callback_websocket,
                                         sizeof(struct per_session_data),
                                         0,
+                                        .id = 0,
                                     },
-                                    {NULL, NULL, 0, 0}};
+                                    {NULL, NULL, 0, 0, .id = 0}};
 
 int init_websocket_server(int port) {
     struct lws_context_creation_info info;
