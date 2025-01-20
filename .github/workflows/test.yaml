@@ -2,17 +2,29 @@ name: Tests
 on: [push, pull_request]
 jobs:
   build:
-    name: build-keylogger
+    name: build-keylogger-${{ matrix.target }}
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        target: [default, libwebsockets]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential libwebsockets-dev
+          if [[ "${{ matrix.target }}" == "libwebsockets" ]]; then
+            sudo apt-get install -y build-essential libwebsockets-dev
+          else
+            sudo apt-get install -y build-essential
+          fi
       - name: Compile
-        run: make
+        run: |
+          if [[ "${{ matrix.target }}" == "libwebsockets" ]]; then
+            make USE_LIBWEBSOCKETS=1
+          else
+            make
+          fi
       - name: Run and terminate
         run: |
           if [ -d /dev/input ]; then
