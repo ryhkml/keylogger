@@ -11,10 +11,15 @@ ifdef USE_LIBWEBSOCKETS
 	SOURCES += websocket.c
 endif
 
+OBJECTS = $(SOURCES:.c=.o)
+
 all: $(TARGET)
 
-$(TARGET): $(SOURCES)
+$(TARGET): $(OBJECTS)
 	$(CC) $(CFLAGS) -o $@ $^ $(LIBS)
 
+%.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
 clean:
-	rm -f $(TARGET)
+	rm -f $(OBJECTS) $(TARGET)
