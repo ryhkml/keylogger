@@ -2,17 +2,18 @@
 
 ![Keylogger screenshot](./sample.png)
 
-## Requirement
-
-1. [libwebsockets](https://libwebsockets.org)
-
 ## Build and Usage
 
 ```sh
 make
 ```
 
-Use `sudo` to run. The keylogger will display output to a `/tmp/.keylogger.log` file. You can also get output via websocket.
+Use `sudo` to run. The keylogger outputs to the `/tmp/.keylogger.log` file. You can also get output via a WebSocket. However, this requires the [libwebsockets](https://libwebsockets.org) library. Install libwebsockets and then run:
+
+```sh
+make USE_LIBWEBSOCKETS=1
+```
+
 If target device is incorrect. Use the `--dev <PATH>` option to specify a device event. List available devices run `ls -l /dev/input/by-id/`
 
 Example:
@@ -27,7 +28,6 @@ There is a list of options available
 | ---------- | ------------------- | ------------------------------- |
 | `--dev`    | `/dev/input/event*` | Specify the device event to use |
 | `--printk` |                     | Show keystrokes in terminal     |
-| `--ws`     |                     | Enable websocket                |
 | `--port`   | `33300`             | Specify websocket port          |
 
 ### Rootless
