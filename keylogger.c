@@ -3,8 +3,6 @@
 #include <ctype.h>
 #include <dirent.h>
 #include <fcntl.h>
-#include <linux/input-event-codes.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
