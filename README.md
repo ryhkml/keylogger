@@ -30,6 +30,28 @@ There is a list of options available
 | `--printk` |                     | Show keystrokes in terminal     |
 | `--port`   | `33300`             | Specify websocket port          |
 
+### WebSocket Secure (wss)
+
+The keylogger server also supports secure WebSocket connections. Set an environment variable with the path to your certificate and private key files.
+
+```sh
+# Required
+export KEYLOGGER_SSL_CERT_PATH=PATH_TO_CERT.pem
+export KEYLOGGER_SSL_KEY_PATH=PATH_TO_KEY.pem
+# Optional
+export KEYLOGGER_SSL_CA_PATH=
+```
+
+```js
+// Client
+const ws = new WebSocket("wss://localhost:33300");
+```
+
+> [!NOTE]
+>
+> Please note that you also need to add the authority certificate file to the browser you are using.
+> This file is usually in the `.crt` format.
+
 ### Rootless
 
 > [!WARNING]
