@@ -85,8 +85,8 @@ const KeyMap key_map[KEY_MAP_SIZE] = {
     [KEY_CAPSLOCK] = {"CapsLock", "CapsLock", "CapsLock", "CapsLock"},
 };
 
-const char *get_key_name(int key_code, bool shift_pressed, bool capslock_active) {
-    if (key_code >= 0 && (size_t)key_code < sizeof(key_map) / sizeof(key_map[0]) && key_map[key_code].normal != NULL) {
+const char *get_key_name(uint16_t key_code, bool shift_pressed, bool capslock_active) {
+    if (key_code < (sizeof(key_map) / sizeof(key_map[0])) && key_map[key_code].normal != NULL) {
         if (shift_pressed && capslock_active) {
             return key_map[key_code].shifted_and_capslocked;
         }

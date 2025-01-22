@@ -112,6 +112,7 @@ int main(int argc, char *argv[]) {
                 }
                 // Log modifier keys independently
                 if (event.value == 1) {
+                    state_key_name[0] = '\0';
                     if (event.code == KEY_CAPSLOCK) {
                         state_capslock_active = !state_capslock_active;
                         capslock_active = state_capslock_active;
