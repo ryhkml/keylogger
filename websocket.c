@@ -97,7 +97,7 @@ int init_websocket_server(int port) {
 
     context = lws_create_context(&info);
     if (!context) {
-        perror("Failed to create context\n");
+        fprintf(stderr, "Failed to create context for port %d\n", port);
         return -1;
     }
     return 0;
