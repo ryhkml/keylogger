@@ -20,7 +20,7 @@ void signal_handler();
 int main(int argc, char *argv[]) {
     const char *target_device_name = NULL;
 #ifdef USE_LIBWEBSOCKETS
-    int port = 33300;
+    uint16_t port = 33300;
 #endif
     for (int i = 1; i < argc; i++) {
         // Device option

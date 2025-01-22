@@ -55,9 +55,9 @@ struct lws_protocols protocols[] = {{
                                     },
                                     {NULL, NULL, 0, 0, .id = 0}};
 
-int init_websocket_server(int port) {
-    if (port < 4000 || port > 65535) {
-        perror("Use ports in the range 4000 to 65535\n");
+int init_websocket_server(uint16_t port) {
+    if (port == 0) {
+        perror("Invalid port number\n");
         return -1;
     }
 
