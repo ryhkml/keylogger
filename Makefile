@@ -1,4 +1,6 @@
-CFLAGS = -O2 -Wall -Wextra -std=c11
+CFLAGS = -O2 -Wall -Wextra -Wformat -Wformat-security \
+		 -fstack-protector-strong -D_FORTIFY_SOURCE=2 \
+		 -pipe -std=c11
 LIBS =
 
 TARGET = out/keylogger
