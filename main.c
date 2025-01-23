@@ -77,8 +77,6 @@ int main(int argc, char *argv[]) {
         state_capslock_active = led_status_bytes[byte_index] & (1 << bit_shift);
     }
 
-    printf("CAPSLOCK STATUS: %d\n", state_capslock_active);
-
     struct input_event event;
     bool shift_pressed = false, ctrl_pressed = false, meta_pressed = false, alt_pressed = false,
          capslock_active = state_capslock_active;
