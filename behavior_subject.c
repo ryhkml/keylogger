@@ -41,9 +41,7 @@ void next(BehaviorSubject *subject, const char *new_value) {
         perror("Failed to allocate memory for new value");
         exit(EXIT_FAILURE);
     }
-    for (size_t i = 0; i < subject->subscriber_count; i++) {
-        subject->subscribers[i](subject->value);
-    }
+    subject->subscribers[0](subject->value);
 }
 
 void unsubscribe(BehaviorSubject *subject) {
