@@ -2,6 +2,7 @@
 #include <signal.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/ioctl.h>
 #include <unistd.h>
 
 #include "behavior_subject.h"
@@ -66,13 +67,21 @@ int main(int argc, char *argv[]) {
         return EXIT_FAILURE;
     }
 
+    bool state_capslock_active = false;
+    unsigned char led_status_bytes[LED_MAX / 8 + 1] = {0};
+    if (ioctl(fd, EVIOCGLED(sizeof(led_status_bytes)), led_status_bytes) == -1) {
+        perror("Failed to get CapsLock LED status\n");
+    } else {
+        static const int byte_index = LED_CAPSL / 8;
+        static const int bit_shift = LED_CAPSL % 8;
+        state_capslock_active = led_status_bytes[byte_index] & (1 << bit_shift);
+    }
+
+    printf("CAPSLOCK STATUS: %d\n", state_capslock_active);
+
     struct input_event event;
-    // Attention!
-    // If you enable capslock before the program runs, the key names will be reversed.
-    // Make sure capslock is turned off by default.
-    // Programmatically detecting capslock status on the keyboard directly is not currently possible.
     bool shift_pressed = false, ctrl_pressed = false, meta_pressed = false, alt_pressed = false,
-         capslock_active = false, state_capslock_active = false;
+         capslock_active = state_capslock_active;
 
     BehaviorSubject subject;
     init_behavior_subject(&subject, "SKIP");
