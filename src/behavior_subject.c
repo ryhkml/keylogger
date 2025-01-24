@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "util.h"
+
 #define INITIAL_CAPACITY 1
 
 void init_behavior_subject(BehaviorSubject *subject, const char *initial_value) {
@@ -13,7 +15,7 @@ void init_behavior_subject(BehaviorSubject *subject, const char *initial_value) 
         perror("Failed to allocate memory for subscribers");
         exit(EXIT_FAILURE);
     }
-    subject->value = m_strdup(initial_value);
+    subject->value = mstrdup(initial_value);
     if (subject->value == NULL) {
         perror("Failed to allocate memory for initial value");
         free(subject->subscribers);
@@ -36,7 +38,7 @@ void subscribe(BehaviorSubject *subject, subscriber_cb callback) {
 
 void next(BehaviorSubject *subject, const char *new_value) {
     free(subject->value);
-    subject->value = m_strdup(new_value);
+    subject->value = mstrdup(new_value);
     if (subject->value == NULL) {
         perror("Failed to allocate memory for new value");
         exit(EXIT_FAILURE);
@@ -51,14 +53,4 @@ void unsubscribe(BehaviorSubject *subject) {
     subject->value = NULL;
     subject->subscriber_count = 0;
     subject->capacity = 0;
-}
-
-char *m_strdup(const char *s) {
-    size_t len = strlen(s) + 1;
-    char *new_s = malloc(len);
-    if (new_s == NULL) {
-        return NULL;
-    }
-    memcpy(new_s, s, len);
-    return new_s;
 }

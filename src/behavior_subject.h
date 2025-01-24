@@ -16,6 +16,5 @@ void init_behavior_subject(BehaviorSubject *subject, const char *initial_value);
 void subscribe(BehaviorSubject *subject, subscriber_cb callback);
 void next(BehaviorSubject *subject, const char *new_value);
 void unsubscribe(BehaviorSubject *subject);
-char *m_strdup(const char *s);
 
 #endif  // BEHAVIOR_SUBJECT_H

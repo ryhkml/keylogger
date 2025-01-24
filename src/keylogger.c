@@ -8,6 +8,7 @@
 #include <unistd.h>
 
 #include "behavior_subject.h"
+#include "util.h"
 
 const KeyMap key_map[KEY_MAP_SIZE] = {
     [KEY_A] = {"a", "A", "A", "a"},
@@ -101,22 +102,9 @@ const char *get_key_name(uint16_t key_code, bool shift_pressed, bool capslock_ac
     return "UNKNOWN";
 }
 
-char *strdup_alloc(const char *s) {
-    if (s == NULL) {
-        return NULL;
-    }
-    size_t len = strlen(s) + 1;
-    char *new_str = (char *)malloc(len);
-    if (new_str == NULL) {
-        return NULL;
-    }
-    memcpy(new_str, s, len);
-    return new_str;
-}
-
 char *find_keyboard_device(const char *target_device_name) {
     if (target_device_name) {
-        return strdup_alloc(target_device_name);
+        return mstrdup(target_device_name);
     }
 
     DIR *dir;
@@ -124,7 +112,7 @@ char *find_keyboard_device(const char *target_device_name) {
     const char base_path[] = "/dev/input/";
 
     if ((dir = opendir(base_path)) == NULL) {
-        perror("Cannot access /dev/input");
+        perror("Cannot access /dev/input\n");
         return NULL;
     }
 
@@ -134,7 +122,7 @@ char *find_keyboard_device(const char *target_device_name) {
             snprintf(device_path, sizeof(device_path), "%s%s", base_path, ent->d_name);
             int fd = open(device_path, O_RDONLY);
             if (fd == -1) {
-                perror("Cannot open device");
+                perror("Cannot open device\n");
                 continue;
             }
             char name[BUFFER_SIZE] = "Unknown";
@@ -145,7 +133,7 @@ char *find_keyboard_device(const char *target_device_name) {
                 if (strstr(name, "keyboard")) {
                     closedir(dir);
                     close(fd);
-                    return strdup_alloc(device_path);
+                    return mstrdup(device_path);
                 }
             }
             close(fd);

@@ -1,9 +1,22 @@
 name: Tests
 on: [push, pull_request]
 jobs:
+  test:
+    name: test-keylogger
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential libcmocka-dev libwebsockets-dev
+      - name: Test
+        run: make test
   build:
     name: build-keylogger-${{ matrix.target }}
     runs-on: ubuntu-latest
+    needs: test
     strategy:
       matrix:
         target: [default, libwebsockets]

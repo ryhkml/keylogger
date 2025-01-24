@@ -10,14 +10,15 @@ SRC_DIR = src
 TEST_DIR = test
 
 SOURCES = $(SRC_DIR)/main.c \
+		  $(SRC_DIR)/util.c \
           $(SRC_DIR)/keylogger.c \
           $(SRC_DIR)/behavior_subject.c
 
 OBJECTS = $(patsubst $(SRC_DIR)/%.c,$(BUILD_DIR)/%.o,$(SOURCES))
 DEPS = $(OBJECTS:.o=.d)
 
-TEST_SOURCES = $(wildcard $(TEST_DIR)/*.c)
-TEST_OBJECTS = $(patsubst $(TEST_DIR)/%.c,$(BUILD_DIR)/test_%.o,$(TEST_SOURCES))
+TEST_SOURCES = $(wildcard $(TEST_DIR)/test_*.c)
+TEST_BINS = $(patsubst $(TEST_DIR)/%.c,$(BUILD_DIR)/%,$(TEST_SOURCES))
 
 ifdef USE_LIBWEBSOCKETS
     CFLAGS += -DUSE_LIBWEBSOCKETS
@@ -37,6 +38,12 @@ $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c | $(BUILD_DIR)
 
 $(BUILD_DIR)/test_%.o: $(TEST_DIR)/%.c | $(BUILD_DIR)
 	$(CC) $(CFLAGS) -I$(SRC_DIR) -c $< -o $@
+
+$(BUILD_DIR)/%: $(TEST_DIR)/%.c $(filter-out $(BUILD_DIR)/main.o, $(OBJECTS)) | $(BUILD_DIR)
+	$(CC) $(CFLAGS) -I$(SRC_DIR) $^ $(LIBS) -lcmocka -o $@
+
+test: $(TEST_BINS)
+	for test_bin in $^; do $$test_bin; done
 
 $(BUILD_DIR):
 	@mkdir -p $(BUILD_DIR)
