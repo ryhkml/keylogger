@@ -1,6 +1,9 @@
 .log
 *.log
 
+!obj
+obj/*
+
 !out
 out/*
 !out/.gitkeep
