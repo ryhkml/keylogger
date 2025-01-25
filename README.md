@@ -52,12 +52,19 @@ const ws = new WebSocket("wss://localhost:33300");
 > Please note that you also need to add the authority certificate file to the browser you are using.
 > This file is usually in the `.crt` format.
 
+### Test
+
+```sh
+make test
+```
+
+The [libcmocka](https://cmocka.org) library is required for testing.
+
 ### Rootless
 
 > [!WARNING]
 >
 > Rootless method gives you direct access to your keyboard.
-> This method poses a potential security risk. Make sure you only use this program for personal use on your own computer.
 
 To run rootless, follow these steps:
 
