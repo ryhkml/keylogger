@@ -146,9 +146,7 @@ char *find_keyboard_device(const char *target_device_name) {
 
 void log_key(FILE *fp, BehaviorSubject *subject, bool ctrl_pressed, bool meta_pressed, bool alt_pressed,
              const char *key_name) {
-    char combined_key[16];
-    combined_key[0] = '\0';
-
+    char combined_key[16] = {0};
     bool is_modifier = (strcmp(key_name, "Shift") == 0 || strcmp(key_name, "Ctrl") == 0 ||
                         strcmp(key_name, "Meta") == 0 || strcmp(key_name, "Alt") == 0);
 

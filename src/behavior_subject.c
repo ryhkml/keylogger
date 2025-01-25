@@ -7,43 +7,68 @@
 #include "util.h"
 
 #define INITIAL_CAPACITY 1
+#define MAX_SUBSCRIBERS 1
 
 void init_behavior_subject(BehaviorSubject *subject, const char *initial_value) {
-    subject->capacity = INITIAL_CAPACITY;
+    subject->capacity = MAX_SUBSCRIBERS;
     subject->subscribers = malloc(subject->capacity * sizeof(subscriber_cb));
     if (subject->subscribers == NULL) {
-        perror("Failed to allocate memory for subscribers");
-        exit(EXIT_FAILURE);
+        perror("Failed to allocate memory for subscribers\n");
+        subject->subscribers = NULL;
+        subject->capacity = 0;
+        return;
     }
-    subject->value = mstrdup(initial_value);
-    if (subject->value == NULL) {
-        perror("Failed to allocate memory for initial value");
-        free(subject->subscribers);
-        exit(EXIT_FAILURE);
-    }
+
     subject->subscriber_count = 0;
+
+    if (initial_value == NULL) {
+        subject->value = NULL;
+    } else {
+        subject->value = mstrdup(initial_value);
+        if (subject->value == NULL) {
+            perror("Failed to allocate memory for initial value\n");
+            free(subject->subscribers);
+            subject->subscribers = NULL;
+            subject->capacity = 0;
+        }
+    }
 }
 
 void subscribe(BehaviorSubject *subject, subscriber_cb callback) {
-    subject->subscribers = realloc(subject->subscribers, (subject->subscriber_count + 1) * sizeof(subscriber_cb));
     if (subject->subscribers == NULL) {
-        perror("Failed to allocate memory for subscribers");
-        exit(EXIT_FAILURE);
+        perror("Subject not initialized\n");
+        return;
     }
-    subject->subscribers[subject->subscriber_count] = callback;
-    subject->subscriber_count++;
-    // Immediately emit the current value to the new subscriber
-    callback(subject->value);
+
+    if (subject->subscriber_count >= MAX_SUBSCRIBERS) {
+        subject->subscribers[0] = callback;
+    } else {
+        subject->subscribers[subject->subscriber_count] = callback;
+        subject->subscriber_count++;
+    }
+
+    if (callback != NULL) {
+        // Immediately emit the current value to the new subscriber
+        callback(subject->value);
+    }
 }
 
 void next(BehaviorSubject *subject, const char *new_value) {
     free(subject->value);
-    subject->value = mstrdup(new_value);
-    if (subject->value == NULL) {
-        perror("Failed to allocate memory for new value");
-        exit(EXIT_FAILURE);
+
+    if (new_value == NULL) {
+        subject->value = NULL;
+    } else {
+        subject->value = mstrdup(new_value);
+        if (subject->value == NULL) {
+            perror("Failed to allocate memory for new value\n");
+            return;
+        }
     }
-    subject->subscribers[0](subject->value);
+
+    if (subject->subscriber_count > 0 && subject->subscribers[0] != NULL) {
+        subject->subscribers[0](subject->value);
+    }
 }
 
 void unsubscribe(BehaviorSubject *subject) {
