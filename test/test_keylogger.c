@@ -44,6 +44,10 @@ static void test_get_key_name() {
     assert_string_equal(get_key_name(9999, false, false), "UNKNOWN");
 }
 
+//
+// The test function below may cause permission errors because it requires sudo to access /dev/input/event*
+// Run the test with sudo or use the rootless method as described in the README.
+//
 static void test_find_keyboard_device() {
     // Default input
     char *keyboard_path = find_keyboard_device(NULL);
