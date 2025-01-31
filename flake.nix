@@ -1,53 +1,78 @@
 {
-  description = " Keylogger for Linux. Leaks your keyboard input";
+  description = "Keylogger for Linux. Leaks your keyboard input";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    flake-utils.url = "github:numtide/flake-utils";
   };
 
   outputs =
-    { self, nixpkgs }:
-    let
-      system = "x86_64-linux";
-      pkgs = nixpkgs.legacyPackages.${system};
-    in
     {
-      packages.${system} = {
-        default = pkgs.stdenv.mkDerivation {
-          name = "keylogger";
-          src = builtins.path {
-            path = ./.;
-            filter = path: type: !(nixpkgs.lib.hasSuffix ".png" path || nixpkgs.lib.hasSuffix ".txt" path);
+      self,
+      nixpkgs,
+      flake-utils,
+      ...
+    }:
+    flake-utils.lib.eachSystem [ "x86_64-linux" ] (
+      system:
+      let
+        pkgs = nixpkgs.legacyPackages.${system};
+
+        mkPackage =
+          websockets:
+          pkgs.stdenv.mkDerivation {
+            name = "keylogger";
+            src = pkgs.lib.cleanSourceWith {
+              src = ./.;
+              filter = path: type: !(pkgs.lib.hasSuffix ".png" path || pkgs.lib.hasSuffix ".txt" path);
+            };
+
+            nativeBuildInputs =
+              [
+                pkgs.gcc
+                pkgs.gnumake
+              ]
+              ++ (pkgs.lib.optional websockets [
+                pkgs.libwebsockets.dev
+                pkgs.openssl.dev
+              ]);
+
+            buildPhase = ''
+              make ${if websockets then "USE_LIBWEBSOCKETS=1" else ""}
+            '';
+
+            installPhase = ''
+              mkdir -p $out/bin
+              cp out/keylogger $out/bin/
+            '';
           };
+      in
+      {
+        packages = {
+          default = mkPackage false;
+          with-websockets = mkPackage true;
+        };
+
+        apps.default = {
+          type = "app";
+          program = "${self.packages.${system}.default}/bin/keylogger";
+        };
+
+        devShells.default = pkgs.mkShell {
           nativeBuildInputs = [
             pkgs.gcc
             pkgs.gnumake
+            pkgs.libwebsockets.dev
+            pkgs.openssl.dev
           ];
-          doCheck = false;
-          buildPhase = ''
-            make
-          '';
-          installPhase = ''
-            mkdir -p $out/bin
-            cp out/keylogger $out/bin/
+
+          shellHook = ''
+            echo "Keylogger development shell"
+            echo "Build options:"
+            echo "1. Regular build: nix build"
+            echo "2. With websockets: nix build .#with-websockets"
           '';
         };
-      };
-
-      devShells.${system}.default = pkgs.mkShell {
-        nativeBuildInputs = [
-          pkgs.gcc
-          pkgs.gnumake
-        ];
-        shellHook = ''
-          echo "Keylogger requires sudo access to run. To run it without root privilege, visit this link"
-          echo "https://github.com/ryhkml/keylogger?tab=readme-ov-file#rootless"
-        '';
-      };
-
-      apps.${system}.default = {
-        type = "app";
-        program = "${self.packages.${system}.default}/bin/keylogger";
-      };
-    };
+      }
+    );
 }
