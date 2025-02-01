@@ -1,5 +1,15 @@
 name: Tests
-on: [push, pull_request]
+on:
+  push:
+    paths:
+      - "**/*"
+      - "!README.md"
+      - "!sample.png"
+  pull_request:
+    paths:
+      - "**/*"
+      - "!README.md"
+      - "!sample.png"
 jobs:
   test:
     name: test-keylogger
