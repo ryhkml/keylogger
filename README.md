@@ -58,8 +58,6 @@ const ws = new WebSocket("wss://localhost:33300");
 make test
 ```
 
-The [libcmocka](https://cmocka.org) library is required for testing.
-
 ### Rootless
 
 > [!WARNING]
