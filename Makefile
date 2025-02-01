@@ -10,15 +10,12 @@ SRC_DIR = src
 TEST_DIR = test
 
 SOURCES = $(SRC_DIR)/main.c \
-		  $(SRC_DIR)/util.c \
+          $(SRC_DIR)/util.c \
           $(SRC_DIR)/keylogger.c \
           $(SRC_DIR)/behavior_subject.c
 
 OBJECTS = $(patsubst $(SRC_DIR)/%.c,$(BUILD_DIR)/%.o,$(SOURCES))
 DEPS = $(OBJECTS:.o=.d)
-
-TEST_SOURCES = $(wildcard $(TEST_DIR)/test_*.c)
-TEST_BINS = $(patsubst $(TEST_DIR)/%.c,$(BUILD_DIR)/%,$(TEST_SOURCES))
 
 ifdef USE_LIBWEBSOCKETS
     CFLAGS += -DUSE_LIBWEBSOCKETS
@@ -36,19 +33,21 @@ $(TARGET): $(OBJECTS)
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c | $(BUILD_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-$(BUILD_DIR)/test_%.o: $(TEST_DIR)/%.c | $(BUILD_DIR)
-	$(CC) $(CFLAGS) -I$(SRC_DIR) -c $< -o $@
+TEST_SOURCES = $(wildcard $(TEST_DIR)/test_*.c)
+TEST_BINS = $(patsubst $(TEST_DIR)/test_%.c,$(BUILD_DIR)/test_%,$(TEST_SOURCES))
 
-$(BUILD_DIR)/%: $(TEST_DIR)/%.c $(filter-out $(BUILD_DIR)/main.o, $(OBJECTS)) | $(BUILD_DIR)
-	$(CC) $(CFLAGS) -I$(SRC_DIR) $^ $(LIBS) -lcmocka -o $@
+$(BUILD_DIR)/test_%: $(TEST_DIR)/test.c $(TEST_DIR)/test_%.c $(filter-out $(BUILD_DIR)/main.o, $(OBJECTS)) | $(BUILD_DIR)
+	$(CC) $(CFLAGS) -I$(SRC_DIR) $^ $(LIBS) -o $@
 
 test: $(TEST_BINS)
-	for test_bin in $^; do $$test_bin; done
+	@for test_bin in $(TEST_BINS); do \
+	    $$test_bin; \
+	done
 
 $(BUILD_DIR):
 	@mkdir -p $(BUILD_DIR)
 
 clean:
-	rm -rf $(BUILD_DIR) $(TARGET)
+	rm -rf $(BUILD_DIR) $(TARGET) out/test_*
 
 -include $(DEPS)

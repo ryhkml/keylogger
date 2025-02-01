@@ -9,7 +9,7 @@ char *mstrdup(const char *value) {
     }
 
     size_t len = strlen(value) + 1;
-    char *new_value = malloc(len);
+    char *new_value = (char *)malloc(len);
 
     if (new_value == NULL) {
         return NULL;
