@@ -40,7 +40,8 @@ $(BUILD_DIR)/test_%: $(TEST_DIR)/test.c $(TEST_DIR)/test_%.c $(filter-out $(BUIL
 	$(CC) $(CFLAGS) -I$(SRC_DIR) $^ $(LIBS) -o $@
 
 test: $(TEST_BINS)
-	@for test_bin in $(TEST_BINS); do \
+	@set -e; \
+	for test_bin in $(TEST_BINS); do \
 	    $$test_bin; \
 	done
 
@@ -48,6 +49,6 @@ $(BUILD_DIR):
 	@mkdir -p $(BUILD_DIR)
 
 clean:
-	rm -rf $(BUILD_DIR) $(TARGET) out/test_*
+	rm -rf $(BUILD_DIR) $(TARGET)
 
 -include $(DEPS)

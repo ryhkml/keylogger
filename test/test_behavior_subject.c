@@ -5,9 +5,9 @@ static void test_init_behavior_subject() {
     BehaviorSubject subject;
     init_behavior_subject(&subject, "Yikes");
 
-    ASSERT_STR_EQUAL(subject.value, "Yikes");
-    ASSERT_INT_EQUAL(subject.subscriber_count, 0);
-    ASSERT_INT_EQUAL(subject.capacity, 1);
+    ASSERT_STR_EQUAL("Yikes", subject.value);
+    ASSERT_INT_EQUAL(0, subject.subscriber_count);
+    ASSERT_INT_EQUAL(1, subject.capacity);
 
     unsubscribe(&subject);
 }
@@ -18,9 +18,9 @@ static void test_subscribe() {
     init_behavior_subject(&subject, "Yikes");
     subscribe(&subject, test_notify);
 
-    ASSERT_STR_EQUAL(subject.value, "Yikes");
-    ASSERT_INT_EQUAL(subject.subscriber_count, 1);
-    ASSERT_INT_EQUAL(subject.capacity, 1);
+    ASSERT_STR_EQUAL("Yikes", subject.value);
+    ASSERT_INT_EQUAL(1, subject.subscriber_count);
+    ASSERT_INT_EQUAL(1, subject.capacity);
 
     unsubscribe(&subject);
 }
@@ -30,12 +30,12 @@ static void test_next() {
     init_behavior_subject(&subject, "Yikes");
     subscribe(&subject, test_notify);
 
-    ASSERT_STR_EQUAL(subject.value, "Yikes");
-    ASSERT_INT_EQUAL(subject.subscriber_count, 1);
+    ASSERT_STR_EQUAL("Yikes", subject.value);
+    ASSERT_INT_EQUAL(1, subject.subscriber_count);
 
     next(&subject, "OK");
-    ASSERT_STR_EQUAL(subject.value, "OK");
-    ASSERT_INT_EQUAL(subject.capacity, 1);
+    ASSERT_STR_EQUAL("OK", subject.value);
+    ASSERT_INT_EQUAL(1, subject.capacity);
 
     unsubscribe(&subject);
 }
@@ -45,18 +45,18 @@ static void test_unsubscribe() {
     init_behavior_subject(&subject, "Yikes");
     subscribe(&subject, test_notify);
 
-    ASSERT_STR_EQUAL(subject.value, "Yikes");
-    ASSERT_INT_EQUAL(subject.subscriber_count, 1);
+    ASSERT_STR_EQUAL("Yikes", subject.value);
+    ASSERT_INT_EQUAL(1, subject.subscriber_count);
 
     next(&subject, "OK");
-    ASSERT_STR_EQUAL(subject.value, "OK");
+    ASSERT_STR_EQUAL("OK", subject.value);
 
     unsubscribe(&subject);
 
     ASSERT_NULL(subject.subscribers);
     ASSERT_NULL(subject.value);
-    ASSERT_INT_EQUAL(subject.subscriber_count, 0);
-    ASSERT_INT_EQUAL(subject.capacity, 0);
+    ASSERT_INT_EQUAL(0, subject.subscriber_count);
+    ASSERT_INT_EQUAL(0, subject.capacity);
 }
 
 int main(void) {

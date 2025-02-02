@@ -5,35 +5,35 @@
 
 static void test_get_key_name() {
     // Word normal
-    ASSERT_STR_EQUAL(get_key_name(KEY_A, false, false), "a");
+    ASSERT_STR_EQUAL("a", get_key_name(KEY_A, false, false));
     // Word shifted
-    ASSERT_STR_EQUAL(get_key_name(KEY_A, true, false), "A");
+    ASSERT_STR_EQUAL("A", get_key_name(KEY_A, true, false));
     // Word capslocked
-    ASSERT_STR_EQUAL(get_key_name(KEY_A, false, true), "A");
+    ASSERT_STR_EQUAL("A", get_key_name(KEY_A, false, true));
     // Word shifted and capslocked
-    ASSERT_STR_EQUAL(get_key_name(KEY_A, true, true), "a");
+    ASSERT_STR_EQUAL("a", get_key_name(KEY_A, true, true));
 
     // Number normal
-    ASSERT_STR_EQUAL(get_key_name(KEY_1, false, false), "1");
+    ASSERT_STR_EQUAL("1", get_key_name(KEY_1, false, false));
     // Number shifted
-    ASSERT_STR_EQUAL(get_key_name(KEY_1, true, false), "!");
+    ASSERT_STR_EQUAL("!", get_key_name(KEY_1, true, false));
     // Number capslocked
-    ASSERT_STR_EQUAL(get_key_name(KEY_1, false, true), "1");
+    ASSERT_STR_EQUAL("1", get_key_name(KEY_1, false, true));
     // Number shifted and capslocked
-    ASSERT_STR_EQUAL(get_key_name(KEY_1, true, true), "!");
+    ASSERT_STR_EQUAL("!", get_key_name(KEY_1, true, true));
 
     // Symbol normal
-    ASSERT_STR_EQUAL(get_key_name(KEY_SLASH, false, false), "/");
+    ASSERT_STR_EQUAL("/", get_key_name(KEY_SLASH, false, false));
     // Symbol shifted
-    ASSERT_STR_EQUAL(get_key_name(KEY_SLASH, true, false), "?");
+    ASSERT_STR_EQUAL("?", get_key_name(KEY_SLASH, true, false));
     // Symbol capslocked
-    ASSERT_STR_EQUAL(get_key_name(KEY_SLASH, false, true), "/");
+    ASSERT_STR_EQUAL("/", get_key_name(KEY_SLASH, false, true));
     // Symbol shifted and capslocked
-    ASSERT_STR_EQUAL(get_key_name(KEY_SLASH, true, true), "?");
+    ASSERT_STR_EQUAL("?", get_key_name(KEY_SLASH, true, true));
 
     // Another key
-    ASSERT_STR_EQUAL(get_key_name(-1, false, false), "UNKNOWN");
-    ASSERT_STR_EQUAL(get_key_name(9999, false, false), "UNKNOWN");
+    ASSERT_STR_EQUAL("UNKNOWN", get_key_name(-1, false, false));
+    ASSERT_STR_EQUAL("UNKNOWN", get_key_name(9999, false, false));
 }
 
 //
@@ -50,7 +50,7 @@ static void test_find_keyboard_device() {
 
     // Custom input
     char *custom_keyboard_path = find_keyboard_device("/dev/input/event1");
-    ASSERT_STR_EQUAL(custom_keyboard_path, "/dev/input/event1");
+    ASSERT_STR_EQUAL("/dev/input/event1", custom_keyboard_path);
 
     free(custom_keyboard_path);
 }
@@ -68,8 +68,7 @@ static void test_log_key() {
     fclose(fp);
     unsubscribe(&subject);
 
-    // access(LOG_FILE, F_OK)
-    ASSERT_INT_EQUAL(access(LOG_FILE, F_OK), 0);
+    ASSERT_INT_EQUAL(0, access(LOG_FILE, F_OK));
 }
 
 int main(void) {
