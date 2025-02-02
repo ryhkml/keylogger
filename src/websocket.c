@@ -4,12 +4,13 @@
 #include <stdbool.h>
 
 struct lws_context *context;
-struct lws *client_wsi = NULL;
 
-int callback_websocket(struct lws *wsi, enum lws_callback_reasons reason, void *user, void *in, size_t len) {
-    struct per_session_data *psd = (struct per_session_data *)user;
+static struct lws *client_wsi = NULL;
+
+static int callback_websocket(struct lws *wsi, enum lws_callback_reasons reason, void *user, void *in, size_t len) {
     (void)in;
     (void)len;
+    struct per_session_data *psd = (struct per_session_data *)user;
     switch (reason) {
         case LWS_CALLBACK_ESTABLISHED:
             printf("Client connected\n");
@@ -33,6 +34,15 @@ int callback_websocket(struct lws *wsi, enum lws_callback_reasons reason, void *
     return 0;
 }
 
+static struct lws_protocols protocols[] = {{
+                                               .name = "websocket-server",
+                                               .callback = callback_websocket,
+                                               .per_session_data_size = sizeof(struct per_session_data),
+                                               .rx_buffer_size = 0,
+                                               .id = 0,
+                                           },
+                                           {NULL, NULL, 0, 0, 0, NULL, 0}};
+
 void send_message_to_client(const char *key) {
     if (client_wsi == NULL) {
         return;
@@ -46,18 +56,9 @@ void send_message_to_client(const char *key) {
     lws_write(client_wsi, p, n, LWS_WRITE_TEXT);
 }
 
-struct lws_protocols protocols[] = {{
-                                        "websocket-server",
-                                        callback_websocket,
-                                        sizeof(struct per_session_data),
-                                        0,
-                                        .id = 0,
-                                    },
-                                    {NULL, NULL, 0, 0, .id = 0}};
-
 int init_websocket_server(uint16_t port) {
     if (port == 0) {
-        perror("Invalid port number\n");
+        printf("Invalid port number\n");
         return -1;
     }
 

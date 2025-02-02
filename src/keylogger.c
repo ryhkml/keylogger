@@ -10,7 +10,7 @@
 #include "behavior_subject.h"
 #include "util.h"
 
-const KeyMap key_map[KEY_MAP_SIZE] = {
+static const KeyMap key_map[KEY_MAP_SIZE] = {
     [KEY_A] = {"a", "A", "A", "a"},
     [KEY_B] = {"b", "B", "B", "b"},
     [KEY_C] = {"c", "C", "C", "c"},
@@ -112,7 +112,7 @@ char *find_keyboard_device(const char *target_device_name) {
     const char base_path[] = "/dev/input/";
 
     if ((dir = opendir(base_path)) == NULL) {
-        perror("Cannot access /dev/input\n");
+        fprintf(stderr, "Cannot access /dev/input\n");
         return NULL;
     }
 
@@ -122,7 +122,7 @@ char *find_keyboard_device(const char *target_device_name) {
             snprintf(device_path, sizeof(device_path), "%s%s", base_path, ent->d_name);
             int fd = open(device_path, O_RDONLY);
             if (fd == -1) {
-                perror("Cannot open device\n");
+                fprintf(stderr, "Cannot open device\n");
                 continue;
             }
             char name[BUFFER_SIZE] = "Unknown";
