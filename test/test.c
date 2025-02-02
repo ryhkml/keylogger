@@ -1,6 +1,10 @@
 #include "test.h"
 
-TestSummary test_summary = {0, 0, 0};
+TestSummary test_summary = {
+    .run = 0,
+    .failed = 0,
+    .passed = 0,
+};
 
 int current_test_failed = 0;
 int counter_assert_run = 0;
