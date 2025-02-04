@@ -13,7 +13,7 @@ void init_behavior_subject(BehaviorSubject *subject, const char *initial_value) 
     subject->capacity = MAX_SUBSCRIBERS;
     subject->subscribers = malloc(subject->capacity * sizeof(subscriber_cb));
     if (subject->subscribers == NULL) {
-        perror("Failed to allocate memory for subscribers\n");
+        printf("Failed to allocate memory for subscribers\n");
         subject->subscribers = NULL;
         subject->capacity = 0;
         return;
@@ -26,7 +26,7 @@ void init_behavior_subject(BehaviorSubject *subject, const char *initial_value) 
     } else {
         subject->value = mstrdup(initial_value);
         if (subject->value == NULL) {
-            perror("Failed to allocate memory for initial value\n");
+            printf("Failed to allocate memory for initial value\n");
             free(subject->subscribers);
             subject->subscribers = NULL;
             subject->capacity = 0;
@@ -36,7 +36,7 @@ void init_behavior_subject(BehaviorSubject *subject, const char *initial_value) 
 
 void subscribe(BehaviorSubject *subject, subscriber_cb callback) {
     if (subject->subscribers == NULL) {
-        perror("Subject not initialized\n");
+        printf("Subject not initialized\n");
         return;
     }
 
@@ -61,7 +61,7 @@ void next(BehaviorSubject *subject, const char *new_value) {
     } else {
         subject->value = mstrdup(new_value);
         if (subject->value == NULL) {
-            perror("Failed to allocate memory for new value\n");
+            printf("Failed to allocate memory for new value\n");
             return;
         }
     }

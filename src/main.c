@@ -18,7 +18,7 @@ static bool printk_active = false;
 void notify_key(const char *key);
 void signal_handler();
 
-int main(int argc, char *argv[]) {
+int main(int argc, const char *argv[]) {
     const char *target_device_name = NULL;
 #ifdef USE_LIBWEBSOCKETS
     uint16_t port = 33300;
@@ -54,14 +54,14 @@ int main(int argc, char *argv[]) {
 
     FILE *fp = fopen(LOG_FILE, "w");
     if (!fp) {
-        perror("Cannot open log file");
+        printf("Cannot open log file\n");
         free(keyboard_path);
         return EXIT_FAILURE;
     }
 
     int fd = open(keyboard_path, O_RDONLY);
     if (fd == -1) {
-        perror("Cannot open keyboard device");
+        printf("Cannot open keyboard device\n");
         free(keyboard_path);
         fclose(fp);
         return EXIT_FAILURE;
@@ -70,7 +70,7 @@ int main(int argc, char *argv[]) {
     bool state_capslock_active = false;
     unsigned char led_status_bytes[LED_MAX / 8 + 1] = {0};
     if (ioctl(fd, EVIOCGLED(sizeof(led_status_bytes)), led_status_bytes) == -1) {
-        perror("Failed to get CapsLock LED status\n");
+        printf("Failed to get CapsLock LED status\n");
     } else {
         static const int byte_index = LED_CAPSL / 8;
         static const int bit_shift = LED_CAPSL % 8;
