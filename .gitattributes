@@ -1,2 +1,3 @@
 # Don't count tests in the language stats
 test/**/*.c linguist-documentation
+test/**/*.h linguist-documentation
