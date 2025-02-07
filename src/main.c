@@ -50,10 +50,17 @@ int main(int argc, const char *argv[]) {
         return EXIT_FAILURE;
     }
 
-    printf("Using keyboard device: %s\n", keyboard_path);
+    char *keyboard_name = get_keyboard_name(keyboard_path);
+    if (keyboard_name) {
+        printf("Using keyboard device: %s\n", keyboard_name);
+    } else {
+        printf("Using keyboard device: %s\n", keyboard_path);
+    }
+
+    free(keyboard_name);
 
     FILE *fp = fopen(LOG_FILE, "w");
-    if (!fp) {
+    if (fp == NULL) {
         printf("Cannot open log file\n");
         free(keyboard_path);
         return EXIT_FAILURE;

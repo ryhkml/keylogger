@@ -144,6 +144,50 @@ char *find_keyboard_device(const char *target_device_name) {
     return NULL;
 }
 
+char *get_keyboard_name(const char *path) {
+    char *c_path = mstrdup(path);
+    if ((strstr(path, "/dev/input/event") == NULL) || c_path == NULL) {
+        fprintf(stderr, "Keyboard path must be in /dev/input/event*\n");
+        return NULL;
+    }
+
+    size_t len = strlen(c_path);
+    if (len > 0 && c_path[len - 1] == '/') {
+        c_path[len - 1] = '\0';
+    }
+
+    const char *last = strrchr(c_path, '/');
+    if (last == NULL) {
+        fprintf(stderr, "Invalid keyboard path %s\n", path);
+        free(c_path);
+        return NULL;
+    }
+
+    const char *event_name = last + 1;
+    char sys_path[BUFFER_SIZE];
+    snprintf(sys_path, sizeof(sys_path), SYS_PATH_DEVICE_NAME, event_name);
+
+    FILE *fp = fopen(sys_path, "r");
+    if (fp == NULL) {
+        fprintf(stderr, "Failed to open sys device name\n");
+        free(c_path);
+        return NULL;
+    }
+
+    char keyboard_name[KEY_MAP_SIZE];
+    if (fgets(keyboard_name, sizeof(keyboard_name), fp) == NULL) {
+        free(c_path);
+        fclose(fp);
+        return NULL;
+    }
+
+    free(c_path);
+    fclose(fp);
+
+    keyboard_name[strcspn(keyboard_name, "\n")] = '\0';
+    return mstrdup(keyboard_name);
+}
+
 void log_key(FILE *fp, BehaviorSubject *subject, bool ctrl_pressed, bool meta_pressed, bool alt_pressed,
              const char *key_name) {
     char combined_key[16] = {0};

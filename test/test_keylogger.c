@@ -55,6 +55,25 @@ static void test_find_keyboard_device() {
     free(custom_keyboard_path);
 }
 
+static void test_get_keyboard_name() {
+    char *keyboard_path = find_keyboard_device(NULL);
+    char *keyboard_name = get_keyboard_name(keyboard_path);
+    ASSERT_NOT_NULL(keyboard_name);
+
+    free(keyboard_path);
+    free(keyboard_name);
+
+    // My keybaord
+    // char *custom_keyboard_path = find_keyboard_device("/dev/input/event7");
+    // char *my_keyboard_name = get_keyboard_name(custom_keyboard_path);
+    // ASSERT_NOT_NULL(custom_keyboard_path);
+    // ASSERT_NOT_NULL(my_keyboard_name);
+    // ASSERT_STR_EQUAL("Keychron Keychron K11 Pro", my_keyboard_name);
+    //
+    // free(custom_keyboard_path);
+    // free(my_keyboard_name);
+}
+
 static void test_notify(const char *key) { (void)key; }
 static void test_log_key() {
     FILE *fp = fopen(LOG_FILE, "w");
@@ -76,6 +95,7 @@ int main(void) {
 
     run_test(test_get_key_name);
     run_test(test_find_keyboard_device);
+    run_test(test_get_keyboard_name);
     run_test(test_log_key);
 
     return print_test();
