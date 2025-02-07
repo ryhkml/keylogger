@@ -3,11 +3,13 @@ on:
   push:
     paths:
       - "**/*"
+      - "!.git*"
       - "!README.md"
       - "!sample.png"
   pull_request:
     paths:
       - "**/*"
+      - "!.git*"
       - "!README.md"
       - "!sample.png"
 jobs:
