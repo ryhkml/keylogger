@@ -3,15 +3,19 @@ on:
   push:
     paths:
       - "**/*"
-      - "!.git*"
+      - "!.gitattributes"
+      - "!.gitignore"
       - "!README.md"
-      - "!sample.png"
+      - "!*.gif"
+      - "!*.png"
   pull_request:
     paths:
       - "**/*"
-      - "!.git*"
+      - "!.gitattributes"
+      - "!.gitignore"
       - "!README.md"
-      - "!sample.png"
+      - "!*.gif"
+      - "!*.png"
 jobs:
   test:
     name: test-keylogger
