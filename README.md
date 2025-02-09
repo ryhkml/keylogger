@@ -16,8 +16,6 @@ make USE_LIBWEBSOCKETS=1
 
 If target device is incorrect. Use the `--dev <PATH>` option to specify a device event. List available devices run `ls -l /dev/input/by-id/`
 
-Example:
-
 ```sh
 sudo out/keylogger --dev /dev/input/event7
 ```
@@ -42,15 +40,35 @@ export KEYLOGGER_SSL_KEY_PATH=PATH_TO_KEY.pem
 export KEYLOGGER_SSL_CA_PATH=
 ```
 
-```js
-// Client
-const ws = new WebSocket("wss://localhost:33300");
+```html
+<!-- Just create an index.html file as a client to receive keystrokes from the server -->
+<!doctype html>
+<html>
+    <head>
+        <style></style>
+        <script defer>
+            const ws = new WebSocket("wss://localhost:33300");
+            ws.onmessage = ({ data }) => {
+                // Do something..
+            };
+        </script>
+    </head>
+    <body>
+        <!-- Design your own keystrokes -->
+    </body>
+</html>
 ```
 
 > [!NOTE]
 >
 > Please note that you also need to add the authority certificate file to the browser you are using.
 > This file is usually in the `.crt` format.
+
+#### Example
+
+A keylogger used as an overlay in OBS:
+
+![Keylogger overlay OBS](./sample-obs-overlay.gif)
 
 ### Test
 
