@@ -75,13 +75,13 @@ int main(int argc, const char *argv[]) {
     }
 
     bool state_capslock_active = false;
-    unsigned char led_status_bytes[LED_MAX / 8 + 1] = {0};
+    unsigned char led_status_bytes[(LED_MAX / 8) + 1] = {0};
     if (ioctl(fd, EVIOCGLED(sizeof(led_status_bytes)), led_status_bytes) == -1) {
         printf("Failed to get CapsLock LED status\n");
     } else {
-        static const int byte_index = LED_CAPSL / 8;
-        static const int bit_shift = LED_CAPSL % 8;
-        state_capslock_active = led_status_bytes[byte_index] & (1 << bit_shift);
+        const int byte_index = LED_CAPSL / 8;
+        const int bit_shift = LED_CAPSL % 8;
+        state_capslock_active = (led_status_bytes[byte_index] & (1 << bit_shift)) != 0;
     }
 
     struct input_event event;
