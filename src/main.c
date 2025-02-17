@@ -34,7 +34,7 @@ int main(int argc, const char *argv[]) {
         }
 #ifdef USE_LIBWEBSOCKETS
         else if (strcmp(argv[i], "--port") == 0 && i + 1 < argc) {
-            port = atoi(argv[i + 1]);
+            port = (uint16_t)atoi(argv[i + 1]);
         }
 #endif
     }
