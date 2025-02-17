@@ -10,7 +10,7 @@
 #include "behavior_subject.h"
 #include "util.h"
 
-static const KeyMap key_map[KEY_MAP_SIZE] = {
+static const KeyMap key_map[] = {
     [KEY_A] = {"a", "A", "A", "a"},
     [KEY_B] = {"b", "B", "B", "b"},
     [KEY_C] = {"c", "C", "C", "c"},
