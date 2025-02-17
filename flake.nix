@@ -69,7 +69,7 @@
           shellHook = ''
             echo "Keylogger development shell"
             echo "Build options:"
-            echo "1. Regular build: nix build"
+            echo "1. Default build: nix build"
             echo "2. With websockets: nix build .#with-websockets"
           '';
         };
