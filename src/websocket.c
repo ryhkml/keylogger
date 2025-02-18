@@ -90,10 +90,10 @@ int init_websocket_server(uint16_t port) {
         }
     }
 
-    static const struct lws_protocol_vhost_options headers[] = {{NULL, NULL, "Cache-Control", "no-cache, no-store"},
-                                                                {NULL, NULL, NULL, NULL}};
-    static const struct lws_protocol_vhost_options vhost_options[] = {{NULL, headers, "websocket-server", ""},
-                                                                      {NULL, NULL, NULL, NULL}};
+    const struct lws_protocol_vhost_options headers[] = {{NULL, NULL, "Cache-Control", "no-cache, no-store"},
+                                                         {NULL, NULL, NULL, NULL}};
+    const struct lws_protocol_vhost_options vhost_options[] = {{NULL, headers, "websocket-server", ""},
+                                                               {NULL, NULL, NULL, NULL}};
     info.pvo = vhost_options;
 
     context = lws_create_context(&info);
@@ -105,7 +105,5 @@ int init_websocket_server(uint16_t port) {
 }
 
 void destroy_websocket_server() {
-    if (context) {
-        lws_context_destroy(context);
-    }
+    if (context) lws_context_destroy(context);
 }
