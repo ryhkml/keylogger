@@ -1,6 +1,6 @@
 CFLAGS = -O2 -Wall -Wextra -Wformat -Wformat-security \
          -fstack-protector-strong -D_FORTIFY_SOURCE=2 \
-         -pipe -std=c11 -MMD -MP
+         -pipe -std=c17 -MMD -MP
 LDFLAGS = -fstack-protector-strong
 LIBS =
 
