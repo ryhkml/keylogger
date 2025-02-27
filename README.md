@@ -47,7 +47,7 @@ export KEYLOGGER_SSL_CA_PATH=
     <head>
         <style></style>
         <script defer>
-            const ws = new WebSocket("wss://localhost:33300");
+            const ws = new WebSocket("wss://127.0.0.1:33300");
             ws.onmessage = ({ data }) => {
                 // Do something..
             };
