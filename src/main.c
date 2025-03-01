@@ -106,7 +106,7 @@ int main(int argc, const char *argv[]) {
     }
 #endif
 
-    char state_key_name[16];
+    char state_key_name[MAX_KEY_LEN];
     while (keep_running) {
 #ifdef USE_LIBWEBSOCKETS
         lws_service(context, 0);

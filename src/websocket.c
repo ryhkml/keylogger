@@ -3,6 +3,8 @@
 #include <libwebsockets.h>
 #include <stdbool.h>
 
+#include "keylogger.h"
+
 struct lws_context *context;
 
 static struct lws *client_wsi = NULL;
@@ -48,9 +50,11 @@ void send_message_to_client(const char *key) {
         return;
     }
 
+    size_t n = strlen(key);
+    if (n > MAX_KEY_LEN) n = MAX_KEY_LEN;
+
     unsigned char buf[LWS_PRE + 16];
     unsigned char *p = &buf[LWS_PRE];
-    size_t n = strlen(key);
     memcpy(p, key, n);
 
     lws_write(client_wsi, p, n, LWS_WRITE_TEXT);
@@ -68,6 +72,7 @@ int init_websocket_server(uint16_t port) {
     info.protocols = protocols;
     info.gid = -1;
     info.uid = -1;
+    info.iface = "127.0.0.1";
     info.options |= LWS_SERVER_OPTION_HTTP_HEADERS_SECURITY_BEST_PRACTICES_ENFORCE;
     info.options |= LWS_SERVER_OPTION_VALIDATE_UTF8;
     info.options |= LWS_SERVER_OPTION_DISABLE_IPV6;

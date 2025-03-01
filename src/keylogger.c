@@ -190,7 +190,7 @@ char *get_keyboard_name(const char *path) {
 
 void log_key(FILE *fp, BehaviorSubject *subject, bool ctrl_pressed, bool meta_pressed, bool alt_pressed,
              const char *key_name) {
-    char combined_key[16] = {0};
+    char combined_key[MAX_KEY_LEN] = {0};
     bool is_modifier = (strcmp(key_name, "Shift") == 0 || strcmp(key_name, "Ctrl") == 0 ||
                         strcmp(key_name, "Meta") == 0 || strcmp(key_name, "Alt") == 0);
 
