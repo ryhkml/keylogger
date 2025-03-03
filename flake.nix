@@ -17,7 +17,6 @@
       system:
       let
         pkgs = nixpkgs.legacyPackages.${system};
-
         mkPackage =
           websockets:
           pkgs.stdenv.mkDerivation {
@@ -53,11 +52,28 @@
           with-websockets = mkPackage true;
         };
 
-        apps.default = {
-          type = "app";
-          program = "${self.packages.${system}.default}/bin/keylogger";
+        apps = {
+          default = {
+            type = "app";
+            program =
+              let
+                wrapper = pkgs.writeShellScriptBin "keylogger" ''
+                  ${self.packages.${system}.default}/bin/keylogger "$@"
+                '';
+              in
+              "${wrapper}/bin/keylogger";
+          };
+          with-websockets = {
+            type = "app";
+            program =
+              let
+                wrapper = pkgs.writeShellScriptBin "keylogger" ''
+                  ${self.packages.${system}.with-websockets}/bin/keylogger "$@"
+                '';
+              in
+              "${wrapper}/bin/keylogger";
+          };
         };
-
         devShells.default = pkgs.mkShell {
           nativeBuildInputs = [
             pkgs.gcc
