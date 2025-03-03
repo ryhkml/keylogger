@@ -28,6 +28,18 @@ There is a list of options available
 | `--printk` |                     | Show keystrokes in terminal     |
 | `--port`   | `33300`             | Specify websocket port          |
 
+Want to try using Nix?
+
+```sh
+nix run github:ryhkml/keylogger -- --dev /dev/input/event? --printk
+```
+
+**or** build with libwebsockets.
+
+```sh
+nix run github:ryhkml/keylogger#with-websockets -- --dev /dev/input/event?
+```
+
 ### WebSocket Secure (wss)
 
 The keylogger server also supports secure WebSocket connections. Set an environment variable with the path to your certificate and private key files.
@@ -98,7 +110,7 @@ To run rootless, follow these steps:
 
 ## Formatter
 
-`~/.clang-format` base from [Google](https://google.github.io/styleguide/cppguide.html)
+`~/.clang-format` is based on [Google](https://google.github.io/styleguide/cppguide.html) style guide
 
 ```
 BasedOnStyle: Google
