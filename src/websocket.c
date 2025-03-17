@@ -36,14 +36,16 @@ static int callback_websocket(struct lws *wsi, enum lws_callback_reasons reason,
     return 0;
 }
 
-static struct lws_protocols protocols[] = {{
-                                               .name = "websocket-server",
-                                               .callback = callback_websocket,
-                                               .per_session_data_size = sizeof(struct per_session_data),
-                                               .rx_buffer_size = 0,
-                                               .id = 0,
-                                           },
-                                           {NULL, NULL, 0, 0, 0, NULL, 0}};
+static struct lws_protocols protocols[] = {
+    {
+     .name = "websocket-server",
+     .callback = callback_websocket,
+     .per_session_data_size = sizeof(struct per_session_data),
+     .rx_buffer_size = 0,
+     .id = 0,
+     },
+    {NULL, NULL, 0, 0, 0, NULL, 0}
+};
 
 void send_message_to_client(const char *key) {
     if (client_wsi == NULL) {
@@ -95,10 +97,14 @@ int init_websocket_server(uint16_t port) {
         }
     }
 
-    static const struct lws_protocol_vhost_options headers[] = {{NULL, NULL, "Cache-Control", "no-cache, no-store"},
-                                                                {NULL, NULL, NULL, NULL}};
-    static const struct lws_protocol_vhost_options vhost_options[] = {{NULL, headers, "websocket-server", ""},
-                                                                      {NULL, NULL, NULL, NULL}};
+    static const struct lws_protocol_vhost_options headers[] = {
+        {NULL, NULL, "Cache-Control", "no-cache, no-store"},
+        {NULL, NULL,            NULL,                 NULL}
+    };
+    static const struct lws_protocol_vhost_options vhost_options[] = {
+        {NULL, headers, "websocket-server",   ""},
+        {NULL,    NULL,               NULL, NULL}
+    };
     info.pvo = vhost_options;
 
     context = lws_create_context(&info);
