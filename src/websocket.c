@@ -37,13 +37,11 @@ static int callback_websocket(struct lws *wsi, enum lws_callback_reasons reason,
 }
 
 static struct lws_protocols protocols[] = {
-    {
-     .name = "websocket-server",
+    {.name = "websocket-server",
      .callback = callback_websocket,
      .per_session_data_size = sizeof(struct per_session_data),
      .rx_buffer_size = 0,
-     .id = 0,
-     },
+     .id = 0},
     {NULL, NULL, 0, 0, 0, NULL, 0}
 };
 
@@ -99,11 +97,11 @@ int init_websocket_server(uint16_t port) {
 
     static const struct lws_protocol_vhost_options headers[] = {
         {NULL, NULL, "Cache-Control", "no-cache, no-store"},
-        {NULL, NULL,            NULL,                 NULL}
+        {NULL, NULL, NULL,            NULL                }
     };
     static const struct lws_protocol_vhost_options vhost_options[] = {
-        {NULL, headers, "websocket-server",   ""},
-        {NULL,    NULL,               NULL, NULL}
+        {NULL, headers, "websocket-server", ""  },
+        {NULL, NULL,    NULL,               NULL}
     };
     info.pvo = vhost_options;
 
