@@ -4,12 +4,11 @@
 #include <string.h>
 
 char *mstrdup(const char *value) {
-    if (value == NULL) return NULL;
+    if (!value) return NULL;
 
     size_t len = strlen(value) + 1;
     char *new_value = malloc(len);
 
-    if (new_value != NULL) strcpy(new_value, value);
-
+    if (new_value) memcpy(new_value, value, len);
     return new_value;
 }
