@@ -22,11 +22,12 @@ sudo out/keylogger --dev /dev/input/event7
 
 There is a list of options available
 
-| Option     | Default Value       | Description                     |
-| ---------- | ------------------- | ------------------------------- |
-| `--dev`    | `/dev/input/event*` | Specify the device event to use |
-| `--printk` |                     | Show keystrokes in terminal     |
-| `--port`   | `33300`             | Specify websocket port          |
+| Option         | Default Value       | Description                     |
+| -------------- | ------------------- | ------------------------------- |
+| `--dev`        | `/dev/input/event*` | Specify the device event to use |
+| `--printk`     |                     | Show keystrokes in terminal     |
+| `--port`       | `33300`             | Specify websocket port          |
+| `-h`, `--help` |                     | Display help message            |
 
 Want to try using Nix?
 
@@ -110,12 +111,15 @@ To run rootless, follow these steps:
 
 ## Formatter
 
-`~/.clang-format` is based on [Google](https://google.github.io/styleguide/cppguide.html) style guide
+`.clang-format` is based on [Google](https://google.github.io/styleguide/cppguide.html) style guide
 
 ```
 BasedOnStyle: Google
 IndentWidth: 4
 ColumnLimit: 120
+AlignArrayOfStructures: Left
+AlignAfterOpenBracket: Align
+BracedInitializerIndentWidth: 4
 ```
 
 _In Google i trust_
