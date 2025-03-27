@@ -64,6 +64,7 @@ jobs:
       - name: Run and terminate
         run: |
           if [ -d /dev/input ]; then
+            out/keylogger --help
             sudo out/keylogger &
             STATE_PID=$!
             sleep 3
