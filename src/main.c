@@ -80,11 +80,11 @@ int main(int argc, char *argv[]) {
 
     char *keyboard_path = find_keyboard_device(target_device_name);
     if (!keyboard_path) {
-        fprintf(stderr, "No keyboard device found");
+        printf("No keyboard device found");
         if (target_device_name) {
-            fprintf(stderr, " with name: %s\n", target_device_name);
+            printf(" with name: %s\n", target_device_name);
         } else {
-            fprintf(stderr, "\n");
+            printf("[%d] There was an error\n", __LINE__);
         }
         return EXIT_FAILURE;
     }
@@ -92,15 +92,15 @@ int main(int argc, char *argv[]) {
     char *keyboard_name = get_keyboard_name(keyboard_path);
     if (keyboard_name) {
         printf("Using keyboard device: %s\n", keyboard_name);
+        free(keyboard_name);
     } else {
         printf("Using keyboard device: %s\n", keyboard_path);
     }
 
-    free(keyboard_name);
-
-    FILE *fp = fopen(LOG_FILE, "w");
-    if (fp == NULL) {
+    FILE *file = fopen(LOG_FILE, "w");
+    if (!file) {
         printf("Cannot open log file\n");
+        free(keyboard_name);
         free(keyboard_path);
         return EXIT_FAILURE;
     }
@@ -108,8 +108,9 @@ int main(int argc, char *argv[]) {
     int fd = open(keyboard_path, O_RDONLY);
     if (fd == -1) {
         printf("Cannot open keyboard device\n");
+        fclose(file);
+        free(keyboard_name);
         free(keyboard_path);
-        fclose(fp);
         return EXIT_FAILURE;
     }
 
@@ -123,7 +124,7 @@ int main(int argc, char *argv[]) {
         state_capslock_active = (led_status_bytes[byte_index] & (1 << bit_shift)) != 0;
     }
 
-    struct input_event event;
+    struct input_event event = {0};
     bool shift_pressed = false, ctrl_pressed = false, meta_pressed = false, alt_pressed = false,
          capslock_active = state_capslock_active;
 
@@ -137,10 +138,11 @@ int main(int argc, char *argv[]) {
 #ifdef USE_LIBWEBSOCKETS
     printf("Websocket listening on port: %d\n", port);
     if (init_websocket_server(port) != 0) {
-        free(keyboard_path);
-        close(fd);
-        fclose(fp);
         unsubscribe(&subject);
+        close(fd);
+        fclose(file);
+        free(keyboard_name);
+        free(keyboard_path);
         return EXIT_FAILURE;
     }
 #endif
@@ -170,7 +172,7 @@ int main(int argc, char *argv[]) {
                         state_capslock_active = !state_capslock_active;
                         capslock_active = state_capslock_active;
                         strcat(state_key_name, "CapsLock");
-                        log_key(fp, &subject, ctrl_pressed, meta_pressed, alt_pressed, state_key_name);
+                        log_key(file, &subject, ctrl_pressed, meta_pressed, alt_pressed, state_key_name);
                     } else {
                         if (event.code == KEY_LEFTSHIFT || event.code == KEY_RIGHTSHIFT) {
                             capslock_active = false;
@@ -185,13 +187,13 @@ int main(int argc, char *argv[]) {
                             capslock_active = state_capslock_active;
                         }
                         if (state_key_name[0] != '\0') {
-                            log_key(fp, &subject, ctrl_pressed, meta_pressed, alt_pressed, state_key_name);
+                            log_key(file, &subject, ctrl_pressed, meta_pressed, alt_pressed, state_key_name);
                         }
                         // Log other keys
                         const char *key_name = get_key_name(event.code, shift_pressed, capslock_active);
                         if (strcmp(key_name, "UNKNOWN") != 0) {
                             strcat(state_key_name, key_name);
-                            log_key(fp, &subject, ctrl_pressed, meta_pressed, alt_pressed, state_key_name);
+                            log_key(file, &subject, ctrl_pressed, meta_pressed, alt_pressed, state_key_name);
                         }
                     }
                     memset(state_key_name, 0, sizeof(state_key_name));
@@ -202,11 +204,10 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    free(keyboard_path);
-    close(fd);
-    fclose(fp);
     unsubscribe(&subject);
-    memset(state_key_name, 0, sizeof(state_key_name));
+    close(fd);
+    fclose(file);
+    free(keyboard_path);
 
 #ifdef USE_LIBWEBSOCKETS
     destroy_websocket_server();

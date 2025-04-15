@@ -66,8 +66,7 @@ int init_websocket_server(uint16_t port) {
         return -1;
     }
 
-    struct lws_context_creation_info info;
-    memset(&info, 0, sizeof(info));
+    struct lws_context_creation_info info = {0};
     info.port = port;
     info.protocols = protocols;
     info.gid = -1;
