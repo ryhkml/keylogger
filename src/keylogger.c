@@ -99,7 +99,7 @@ const char *get_key_name(uint16_t key_code, bool shift_pressed, bool capslock_ac
         }
         return key_map[key_code].normal;
     }
-    return "UNKNOWN";
+    return (const char *)"UNKNOWN";
 }
 
 char *find_keyboard_device(const char *target_device_name) {
@@ -157,7 +157,7 @@ char *get_keyboard_name(const char *path) {
     }
 
     const char *event = last + 1;
-    size_t sys_path_size = strlen(SYS_PATH_DEVICE_NAME) + strlen(event);
+    size_t sys_path_size = snprintf(NULL, 0, SYS_PATH_DEVICE_NAME, event);
     char *sys_path_buff = malloc(sys_path_size + 1);
     if (!sys_path_buff) return NULL;
     snprintf(sys_path_buff, sys_path_size + 1, SYS_PATH_DEVICE_NAME, event);
@@ -176,32 +176,26 @@ char *get_keyboard_name(const char *path) {
         fclose(file);
         return NULL;
     }
+    // Remove newline
     size_t keyboard_name_size = strlen(tmp);
     tmp[keyboard_name_size - 1] = '\0';
 
     fclose(file);
 
-    char *keyboard_name_buff = malloc(keyboard_name_size + 1);
-    if (!keyboard_name_buff) return NULL;
-    strncpy(keyboard_name_buff, tmp, keyboard_name_size + 1);
-
-    return keyboard_name_buff;
+    return mstrdup(tmp);
 }
 
 void log_key(FILE *fp, BehaviorSubject *subject, bool ctrl_pressed, bool meta_pressed, bool alt_pressed,
              const char *key_name) {
     char combined_key[MAX_KEY_LEN];
-    combined_key[0] = '\0';
     bool is_modifier = (strcmp(key_name, "Shift") == 0 || strcmp(key_name, "Ctrl") == 0 ||
                         strcmp(key_name, "Meta") == 0 || strcmp(key_name, "Alt") == 0);
     if (is_modifier) {
         next(subject, key_name);
         fprintf(fp, "%s\n", key_name);
     } else {
-        if (ctrl_pressed) strcat(combined_key, "Ctrl+");
-        if (meta_pressed) strcat(combined_key, "Meta+");
-        if (alt_pressed) strcat(combined_key, "Alt+");
-        strcat(combined_key, key_name);
+        snprintf(combined_key, MAX_KEY_LEN, "%s%s%s%s", ctrl_pressed ? "Ctrl+" : "", meta_pressed ? "Meta+" : "",
+                 alt_pressed ? "Alt+" : "", key_name);
         next(subject, combined_key);
         fprintf(fp, "%s\n", combined_key);
     }

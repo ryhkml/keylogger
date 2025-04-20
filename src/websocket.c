@@ -26,9 +26,7 @@ static int callback_websocket(struct lws *wsi, enum lws_callback_reasons reason,
         case LWS_CALLBACK_CLOSED:
             printf("Client disconnected\n");
             psd->wsi = NULL;
-            if (client_wsi == wsi) {
-                client_wsi = NULL;
-            }
+            if (client_wsi == wsi) client_wsi = NULL;
             break;
         default:
             break;
@@ -46,17 +44,11 @@ static struct lws_protocols protocols[] = {
 };
 
 void send_message_to_client(const char *key) {
-    if (client_wsi == NULL) {
-        return;
-    }
-
+    if (!client_wsi) return;
     size_t n = strlen(key);
-    if (n > MAX_KEY_LEN) n = MAX_KEY_LEN;
-
-    unsigned char buf[LWS_PRE + 16];
+    unsigned char buf[LWS_PRE + MAX_KEY_LEN];
     unsigned char *p = &buf[LWS_PRE];
-    memcpy(p, key, n);
-
+    memcpy(p, key, n + 1);
     lws_write(client_wsi, p, n, LWS_WRITE_TEXT);
 }
 

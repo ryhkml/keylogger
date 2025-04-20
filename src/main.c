@@ -8,6 +8,7 @@
 
 #include "behavior_subject.h"
 #include "keylogger.h"
+#include "util.h"
 
 #ifdef USE_LIBWEBSOCKETS
 #include "websocket.h"
@@ -167,22 +168,21 @@ int main(int argc, char *argv[]) {
                 }
                 // Log modifier keys independently
                 if (event.value == 1) {
-                    state_key_name[0] = '\0';
                     if (event.code == KEY_CAPSLOCK) {
                         state_capslock_active = !state_capslock_active;
                         capslock_active = state_capslock_active;
-                        strcat(state_key_name, "CapsLock");
+                        snprintf(state_key_name, MAX_KEY_LEN, "CapsLock");
                         log_key(file, &subject, ctrl_pressed, meta_pressed, alt_pressed, state_key_name);
                     } else {
                         if (event.code == KEY_LEFTSHIFT || event.code == KEY_RIGHTSHIFT) {
                             capslock_active = false;
-                            strcat(state_key_name, "Shift");
+                            snprintf(state_key_name, MAX_KEY_LEN, "Shift");
                         } else if (event.code == KEY_LEFTCTRL || event.code == KEY_RIGHTCTRL) {
-                            strcat(state_key_name, "Ctrl");
+                            snprintf(state_key_name, MAX_KEY_LEN, "Ctrl");
                         } else if (event.code == KEY_LEFTMETA || event.code == KEY_RIGHTMETA) {
-                            strcat(state_key_name, "Meta");
+                            snprintf(state_key_name, MAX_KEY_LEN, "Meta");
                         } else if (event.code == KEY_LEFTALT || event.code == KEY_RIGHTALT) {
-                            strcat(state_key_name, "Alt");
+                            snprintf(state_key_name, MAX_KEY_LEN, "Alt");
                         } else if (state_capslock_active) {
                             capslock_active = state_capslock_active;
                         }
@@ -192,7 +192,13 @@ int main(int argc, char *argv[]) {
                         // Log other keys
                         const char *key_name = get_key_name(event.code, shift_pressed, capslock_active);
                         if (strcmp(key_name, "UNKNOWN") != 0) {
-                            strcat(state_key_name, key_name);
+                            char *tmp = mstrdup(state_key_name);
+                            if (tmp) {
+                                snprintf(state_key_name, MAX_KEY_LEN, "%s%s", tmp, key_name);
+                                free(tmp);
+                            } else {
+                                snprintf(state_key_name, MAX_KEY_LEN, "%s", key_name);
+                            }
                             log_key(file, &subject, ctrl_pressed, meta_pressed, alt_pressed, state_key_name);
                         }
                     }

