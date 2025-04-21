@@ -23,23 +23,20 @@
             name = "keylogger";
             src = pkgs.lib.cleanSourceWith {
               src = ./.;
-              filter = path: type: !(pkgs.lib.hasSuffix ".png" path || pkgs.lib.hasSuffix ".txt" path);
+              filter = path: type: !(pkgs.lib.hasSuffix ".gif" path || pkgs.lib.hasSuffix ".png" path || pkgs.lib.hasSuffix ".txt" path);
             };
-
             nativeBuildInputs =
               [
                 pkgs.gcc
-                pkgs.gnumake
               ]
               ++ (pkgs.lib.optional websockets [
                 pkgs.libwebsockets.dev
                 pkgs.openssl.dev
               ]);
-
             buildPhase = ''
-              make ${if websockets then "USE_LIBWEBSOCKETS=1" else ""}
+              gcc -o nob nob.c
+              ./nob ${if websockets then "-lwebsockets" else ""}
             '';
-
             installPhase = ''
               mkdir -p $out/bin
               cp out/keylogger $out/bin/
@@ -51,7 +48,6 @@
           default = mkPackage false;
           with-websockets = mkPackage true;
         };
-
         apps = {
           default = {
             type = "app";
@@ -77,16 +73,14 @@
         devShells.default = pkgs.mkShell {
           nativeBuildInputs = [
             pkgs.gcc
-            pkgs.gnumake
             pkgs.libwebsockets.dev
             pkgs.openssl.dev
           ];
-
           shellHook = ''
             echo "Keylogger development shell"
             echo "Build options:"
-            echo "1. Default build: nix build"
-            echo "2. With websockets: nix build .#with-websockets"
+            echo "- Default build: nix build"
+            echo "- Build with websocket: nix build .#with-websockets"
           '';
         };
       }
