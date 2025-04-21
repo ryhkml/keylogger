@@ -138,6 +138,7 @@ int main(int argc, char *argv[]) {
 
 #ifdef USE_LIBWEBSOCKETS
     printf("Websocket listening on port: %d\n", port);
+    printf(">>> You must set up a WebSocket client first for the keylogger to function properly.\n");
     if (init_websocket_server(port) != 0) {
         unsubscribe(&subject);
         close(fd);
