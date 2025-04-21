@@ -26,7 +26,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential libcmocka-dev libwebsockets-dev
+          sudo apt-get install -y build-essential libwebsockets-dev
       - name: Create udev rules
         run: |
           echo "SUBSYSTEM==\"input\", OWNER=\"$USER\", MODE=\"0660\"" | sudo tee /etc/udev/rules.d/90-keylogger.rules > /dev/null
@@ -34,8 +34,8 @@ jobs:
           sudo udevadm trigger
       - name: Test
         run: |
-          make test
-          make clean
+          gcc -o nob nob.c
+          ./nob test
   build:
     name: build-keylogger-${{ matrix.target }}
     runs-on: ubuntu-latest
@@ -56,10 +56,11 @@ jobs:
           fi
       - name: Compile
         run: |
+          gcc -o nob nob.c
           if [[ "${{ matrix.target }}" == "libwebsockets" ]]; then
-            make USE_LIBWEBSOCKETS=1
+            ./nob -lwebsockets
           else
-            make
+            ./nob
           fi
       - name: Run and terminate
         run: |
@@ -78,8 +79,5 @@ jobs:
           ls -lh /tmp/.keylogger.log
       - name: Cleanup
         run: |
-          if [[ "${{ matrix.target }}" == "libwebsockets" ]]; then
-            make USE_LIBWEBSOCKETS=1 clean
-          else
-            make clean
-          fi
+          rm -f out/keylogger out/test_*
+          sudo rm -f /tmp/.keylogger.log
