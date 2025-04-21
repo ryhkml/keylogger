@@ -5,29 +5,31 @@
 ## Build and Usage
 
 ```sh
-make
+gcc -o nob nob.c
+./nob
+sudo out/keylogger --printk
 ```
 
 Use `sudo` to run. The keylogger outputs to the `/tmp/.keylogger.log` file. You can also get output via a WebSocket. However, this requires the [libwebsockets](https://libwebsockets.org) library. Install libwebsockets and then run:
 
 ```sh
-make USE_LIBWEBSOCKETS=1
+./nob -lwebsockets
 ```
 
 If target device is incorrect. Use the `--dev <PATH>` option to specify a device event. List available devices run `ls -l /dev/input/by-id/`
 
 ```sh
-sudo out/keylogger --dev /dev/input/event7
+sudo out/keylogger --dev /dev/input/event7 --printk
 ```
 
 There is a list of options available
 
 | Option         | Default Value       | Description                     |
 | -------------- | ------------------- | ------------------------------- |
-| `--dev`        | `/dev/input/event*` | Specify the device event to use |
+| `--dev`        | `/dev/input/event?` | Specify the device event to use |
 | `--printk`     |                     | Show keystrokes in terminal     |
 | `--port`       | `33300`             | Specify websocket port          |
-| `-h`, `--help` |                     | Display help message            |
+| `-h`, `--help` |                     | Display help message and exit   |
 
 Want to try using Nix?
 
@@ -86,7 +88,7 @@ A keylogger used as an overlay in OBS:
 ### Test
 
 ```sh
-make test
+./nob test
 ```
 
 ### Rootless
@@ -97,7 +99,7 @@ make test
 
 To run rootless, follow these steps:
 
-1. Create a udev rules file (for example, /etc/udev/rules.d/90-keylogger.rules)
+1. Create a udev rules file (for example, `/etc/udev/rules.d/90-keylogger.rules`)
 
     ```sh
     echo "SUBSYSTEM==\"input\", OWNER=\"$USER\", MODE=\"0660\"" | sudo tee /etc/udev/rules.d/90-keylogger.rules > /dev/null
@@ -107,6 +109,7 @@ To run rootless, follow these steps:
     ```sh
     sudo udevadm control --reload-rules
     sudo udevadm trigger
+    sudo rm -f /tmp/.keylogger.log
     ```
 
 ## Formatter
