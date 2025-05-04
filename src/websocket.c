@@ -14,20 +14,23 @@ static int callback_websocket(struct lws *wsi, enum lws_callback_reasons reason,
     (void)len;
     struct per_session_data *psd = (struct per_session_data *)user;
     switch (reason) {
-        case LWS_CALLBACK_ESTABLISHED:
+        case LWS_CALLBACK_ESTABLISHED: {
             printf("Client connected\n");
             psd->wsi = wsi;
             client_wsi = wsi;
             lws_callback_on_writable(wsi);
             break;
-        case LWS_CALLBACK_SERVER_WRITEABLE:
+        }
+        case LWS_CALLBACK_SERVER_WRITEABLE: {
             lws_callback_on_writable(wsi);
             break;
-        case LWS_CALLBACK_CLOSED:
+        }
+        case LWS_CALLBACK_CLOSED: {
             printf("Client disconnected\n");
             psd->wsi = NULL;
             if (client_wsi == wsi) client_wsi = NULL;
             break;
+        }
         default:
             break;
     }
@@ -40,7 +43,11 @@ static struct lws_protocols protocols[] = {
      .per_session_data_size = sizeof(struct per_session_data),
      .rx_buffer_size = 0,
      .id = 0},
-    {NULL, NULL, 0, 0, 0, NULL, 0}
+    {
+     NULL, NULL,
+     0, 0,
+     0, NULL,
+     0, }
 };
 
 void send_message_to_client(const char *key) {
@@ -48,7 +55,7 @@ void send_message_to_client(const char *key) {
     size_t n = strlen(key);
     unsigned char buf[LWS_PRE + MAX_KEY_LEN];
     unsigned char *p = &buf[LWS_PRE];
-    memcpy(p, key, n + 1);
+    memcpy(p, key, n);
     lws_write(client_wsi, p, n, LWS_WRITE_TEXT);
 }
 

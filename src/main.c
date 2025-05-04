@@ -44,7 +44,7 @@ void signal_handler() { keep_running = false; }
 int main(int argc, char *argv[]) {
     const char *target_device_name = NULL;
 #ifdef USE_LIBWEBSOCKETS
-    uint16_t port = 33300;
+    uint16_t port = DEFAULT_PORT_WS;
 #endif
 
     struct option keylogger_options[] = {
@@ -67,7 +67,7 @@ int main(int argc, char *argv[]) {
             case 0:
                 if (opt_index == 0) target_device_name = optarg;
 #ifdef USE_LIBWEBSOCKETS
-                if (opt_index == 1) port = (uint16_t)atoi(optarg);
+                if (opt_index == 1) port = atoi(optarg) != 0 ? (uint16_t)atoi(optarg) : DEFAULT_PORT_WS;
                 if (opt_index == 2) printk_active = true;
 #else
                 if (opt_index == 1) printk_active = true;
