@@ -24,12 +24,13 @@ sudo out/keylogger --dev /dev/input/event7 --printk
 
 There is a list of options available
 
-| Option         | Default Value       | Description                     |
-| -------------- | ------------------- | ------------------------------- |
-| `--dev`        | `/dev/input/event?` | Specify the device event to use |
-| `--printk`     |                     | Show keystrokes in terminal     |
-| `--port`       | `33300`             | Specify websocket port          |
-| `-h`, `--help` |                     | Display help message and exit   |
+| Option         | Default Value       | Description                         |
+| -------------- | ------------------- | ----------------------------------- |
+| `--dev`        | `/dev/input/event?` | Specify the device event to use     |
+| `--no-log`     |                     | Disable writing key to the log file |
+| `--printk`     |                     | Show keystrokes in terminal         |
+| `--port`       | `33300`             | Specify websocket port              |
+| `-h`, `--help` |                     | Display help message and exit       |
 
 Want to try using Nix?
 
