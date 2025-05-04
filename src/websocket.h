@@ -4,6 +4,8 @@
 #include <libwebsockets.h>
 #include <stdint.h>
 
+#define DEFAULT_PORT_WS 33300
+
 struct per_session_data {
     struct lws *wsi;
 };
