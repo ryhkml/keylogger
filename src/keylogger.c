@@ -185,18 +185,18 @@ char *get_keyboard_name(const char *path) {
     return mstrdup(tmp);
 }
 
-void log_key(FILE *fp, BehaviorSubject *subject, bool ctrl_pressed, bool meta_pressed, bool alt_pressed,
+void log_key(FILE *f, BehaviorSubject *subject, bool ctrl_pressed, bool meta_pressed, bool alt_pressed,
              const char *key_name) {
     char combined_key[MAX_KEY_LEN];
     bool is_modifier = (strcmp(key_name, "Shift") == 0 || strcmp(key_name, "Ctrl") == 0 ||
                         strcmp(key_name, "Meta") == 0 || strcmp(key_name, "Alt") == 0);
     if (is_modifier) {
         next(subject, key_name);
-        fprintf(fp, "%s\n", key_name);
+        if (f) fprintf(f, "%s\n", key_name);
     } else {
         snprintf(combined_key, MAX_KEY_LEN, "%s%s%s%s", ctrl_pressed ? "Ctrl+" : "", meta_pressed ? "Meta+" : "",
                  alt_pressed ? "Alt+" : "", key_name);
         next(subject, combined_key);
-        fprintf(fp, "%s\n", combined_key);
+        if (f) fprintf(f, "%s\n", combined_key);
     }
 }
