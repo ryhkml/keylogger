@@ -7,7 +7,6 @@
 ```sh
 gcc -o nob nob.c
 ./nob
-sudo out/keylogger --printk
 ```
 
 Use `sudo` to run. The keylogger outputs to the `/tmp/.keylogger.log` file. You can also get output via a WebSocket. However, this requires the [libwebsockets](https://libwebsockets.org) library. Install libwebsockets and then run:

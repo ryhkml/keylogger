@@ -13,7 +13,7 @@ void init_behavior_subject(BehaviorSubject *subject, const char *initial_value) 
     subject->capacity = MAX_SUBSCRIBERS;
     subject->subscribers = malloc(subject->capacity * sizeof(subscriber_cb));
     if (!subject->subscribers) {
-        printf("Failed to allocate memory for subscribers\n");
+        fprintf(stderr, "Failed to allocate memory for subscribers\n");
         subject->subscribers = NULL;
         subject->capacity = 0;
         return;
@@ -24,7 +24,7 @@ void init_behavior_subject(BehaviorSubject *subject, const char *initial_value) 
     } else {
         subject->value = mstrdup(initial_value);
         if (!subject->value) {
-            printf("Failed to allocate memory for initial value\n");
+            fprintf(stderr, "Failed to allocate memory for initial value\n");
             free(subject->subscribers);
             subject->subscribers = NULL;
             subject->capacity = 0;
@@ -34,7 +34,7 @@ void init_behavior_subject(BehaviorSubject *subject, const char *initial_value) 
 
 void subscribe(BehaviorSubject *subject, subscriber_cb callback) {
     if (!subject->subscribers) {
-        printf("Subject not initialized\n");
+        fprintf(stderr, "Subject not initialized\n");
         return;
     }
     if (subject->subscriber_count >= MAX_SUBSCRIBERS) {
@@ -48,17 +48,24 @@ void subscribe(BehaviorSubject *subject, subscriber_cb callback) {
 }
 
 void next(BehaviorSubject *subject, const char *new_value) {
-    free(subject->value);
     if (!new_value) {
+        free(subject->value);
         subject->value = NULL;
     } else {
-        subject->value = mstrdup(new_value);
-        if (subject->value == NULL) {
-            printf("Failed to allocate memory for new value\n");
+        char *new_value_copy = mstrdup(new_value);
+        if (new_value_copy == NULL) {
+            fprintf(stderr, "Failed to allocate memory for new value\n");
             return;
         }
+        free(subject->value);
+        subject->value = new_value_copy;
     }
-    if (subject->subscriber_count > 0 && subject->subscribers[0]) subject->subscribers[0](subject->value);
+    // Notify subscribers
+    for (size_t i = 0; i < subject->subscriber_count; i++) {
+        if (subject->subscribers[i]) {
+            subject->subscribers[i](subject->value);
+        }
+    }
 }
 
 void unsubscribe(BehaviorSubject *subject) {

