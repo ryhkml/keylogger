@@ -60,7 +60,9 @@ export KEYLOGGER_SSL_CA_PATH=
 
 ### Design Your Own Keystrokes
 
-Just create an [index.html](./index.html) file as a client to receive keystrokes from the server. A keylogger can use as an [overlay in OBS](./sample-obs-overlay.mp4).
+Just create an [index.html](./index.html) file as a client to receive keystrokes from the server.
+
+<video src="./sample-obs-overlay.mp4" width="960" height="540" controls></video>
 
 ### Test
 
