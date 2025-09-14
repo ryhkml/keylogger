@@ -62,7 +62,7 @@ export KEYLOGGER_SSL_CA_PATH=
 
 Just create an [index.html](./index.html) file as a client to receive keystrokes from the server.
 
-<video src="./sample-obs-overlay.mp4" width="960" height="540" controls></video>
+<video src="https://github.com/ryhkml/keylogger/raw/refs/heads/main/sample-obs-overlay.mp4" width="640" height="480" controls preload muted></video>
 
 ### Test
 
