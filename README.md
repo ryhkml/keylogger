@@ -23,13 +23,16 @@ sudo out/keylogger --dev /dev/input/event7 --printk
 
 There is a list of options available
 
-| Option         | Default Value       | Description                         |
-| -------------- | ------------------- | ----------------------------------- |
-| `--dev`        | `/dev/input/event?` | Specify the device event to use     |
-| `--no-log`     |                     | Disable writing key to the log file |
-| `--printk`     |                     | Show keystrokes in terminal         |
-| `--port`       | `33300`             | Specify websocket port              |
-| `-h`, `--help` |                     | Display help message and exit       |
+```txt
+sudo out/keylogger [OPTIONS]
+
+Options:
+    --dev     [path]   Specify the device event to use (default: /dev/input/event?)
+    --no-log           Disable writing key to the log file
+    --printk           Show keystrokes in terminal
+    --port    [port]   Specify websocket port (default: 33300)
+    -h,--help          Display help message and exit
+```
 
 Want to try using Nix?
 
@@ -49,41 +52,15 @@ The keylogger server also supports secure WebSocket connections. Set an environm
 
 ```sh
 # Required
-export KEYLOGGER_SSL_CERT_PATH=PATH_TO_CERT.pem
-export KEYLOGGER_SSL_KEY_PATH=PATH_TO_KEY.pem
+export KEYLOGGER_SSL_CERT_PATH="PATH_TO_CERT.pem"
+export KEYLOGGER_SSL_KEY_PATH="PATH_TO_KEY.pem"
 # Optional
 export KEYLOGGER_SSL_CA_PATH=
 ```
 
-```html
-<!-- Just create an index.html file as a client to receive keystrokes from the server -->
-<!doctype html>
-<html>
-    <head>
-        <style></style>
-        <script defer>
-            const ws = new WebSocket("wss://127.0.0.1:33300");
-            ws.onmessage = ({ data }) => {
-                // Do something..
-            };
-        </script>
-    </head>
-    <body>
-        <!-- Design your own keystrokes -->
-    </body>
-</html>
-```
+### Design Your Own Keystrokes
 
-> [!NOTE]
->
-> Please note that you also need to add the authority certificate file to the browser you are using.
-> This file is usually in the `.crt` format.
-
-#### Example
-
-A keylogger used as an overlay in OBS:
-
-![Keylogger overlay OBS](./sample-obs-overlay.gif)
+Just create an [index.html](./index.html) file as a client to receive keystrokes from the server. A keylogger can use as an [overlay in OBS](./sample-obs-overlay.mp4).
 
 ### Test
 
@@ -111,18 +88,3 @@ To run rootless, follow these steps:
     sudo udevadm trigger
     sudo rm -f /tmp/.keylogger.log
     ```
-
-## Formatter
-
-`.clang-format` is based on [Google](https://google.github.io/styleguide/cppguide.html) style guide
-
-```
-BasedOnStyle: Google
-IndentWidth: 4
-ColumnLimit: 120
-AlignArrayOfStructures: Left
-AlignAfterOpenBracket: Align
-BracedInitializerIndentWidth: 4
-```
-
-_In Google i trust_
