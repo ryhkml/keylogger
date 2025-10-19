@@ -28,7 +28,7 @@
 	</head>
 	<body>
 		<div class="container-key"></div>
-		<script defer>
+		<script>
 			const ws = new WebSocket("wss://127.0.0.1:33300");
 			const containerKey = document.querySelector(".container-key");
 			ws.onopen = () => {
@@ -37,38 +37,20 @@
 			ws.onmessage = ({ data }) => {
 				const span = document.createElement("span");
 				span.classList.add("key");
-				// Meta
 				if (data.includes("Meta")) {
-					data = data.replace("Meta", "Cmd");
+					data = "Cmd";
 				}
-				// Shift
-				// if (data.includes("Shift")) {
-				// 	data = data.replace("Shift", "󰄝");
-				// }
-				// Space
-				// if (data.includes("Space")) {
-				// 	data = data.replace("Space", "󱁐");
-				// }
-				// Capslock
-				if (data.includes("CapsLock")) {
-					data = data.replace("CapsLock", "󰌎");
-				}
-				// Backspace
-				// if (data.includes("Backspace")) {
-				// 	data = data.replace("Backspace", "󰌍");
-				// }
-				// Arrow
 				if (data.includes("Arrow Up")) {
-					data = data.replace("Arrow Up", "");
+					data = "Up";
 				}
 				if (data.includes("Arrow Down")) {
-					data = data.replace("Arrow Down", "");
+					data = "Down";
 				}
 				if (data.includes("Arrow Left")) {
-					data = data.replace("Arrow Left", "");
+					data = "Left";
 				}
 				if (data.includes("Arrow Right")) {
-					data = data.replace("Arrow Right", "");
+					data = "Right";
 				}
 				span.textContent = data;
 				containerKey.insertBefore(span, containerKey.firstChild);
