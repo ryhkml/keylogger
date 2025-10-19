@@ -37,19 +37,19 @@
 			ws.onmessage = ({ data }) => {
 				const span = document.createElement("span");
 				span.classList.add("key");
-				if (data.includes("Meta")) {
+				if (data == "Meta") {
 					data = "Cmd";
 				}
-				if (data.includes("Arrow Up")) {
+				if (data == "Arrow Up") {
 					data = "Up";
 				}
-				if (data.includes("Arrow Down")) {
+				if (data == "Arrow Down") {
 					data = "Down";
 				}
-				if (data.includes("Arrow Left")) {
+				if (data == "Arrow Left") {
 					data = "Left";
 				}
-				if (data.includes("Arrow Right")) {
+				if (data == "Arrow Right") {
 					data = "Right";
 				}
 				span.textContent = data;
