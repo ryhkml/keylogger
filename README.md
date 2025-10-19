@@ -2,17 +2,15 @@
 
 ![Keylogger screenshot](./sample.png)
 
+## Prerequisites
+Before you begin, ensure the following library is installed:
+1. [libwebsockets](https://libwebsockets.org)
+
 ## Build and Usage
 
 ```sh
 gcc -o nob nob.c
 ./nob
-```
-
-Use `sudo` to run. The keylogger outputs to the `/tmp/.keylogger.log` file. You can also get output via a WebSocket. However, this requires the [libwebsockets](https://libwebsockets.org) library. Install libwebsockets and then run:
-
-```sh
-./nob -lwebsockets
 ```
 
 If target device is incorrect. Use the `--dev <PATH>` option to specify a device event. List available devices run `ls -l /dev/input/by-id/`
@@ -21,14 +19,13 @@ If target device is incorrect. Use the `--dev <PATH>` option to specify a device
 sudo out/keylogger --dev /dev/input/event7 --printk
 ```
 
-There is a list of options available
+There is a list of options available:
 
 ```txt
 sudo out/keylogger [OPTIONS]
 
 Options:
     --dev     [path]   Specify the device event to use (default: /dev/input/event?)
-    --no-log           Disable writing key to the log file
     --printk           Show keystrokes in terminal
     --port    [port]   Specify websocket port (default: 33300)
     -h,--help          Display help message and exit
@@ -38,12 +35,6 @@ Want to try using Nix?
 
 ```sh
 nix run github:ryhkml/keylogger -- --dev /dev/input/event? --printk
-```
-
-**or** build with libwebsockets.
-
-```sh
-nix run github:ryhkml/keylogger#with-websockets -- --dev /dev/input/event?
 ```
 
 ### WebSocket Secure (wss)
@@ -88,5 +79,4 @@ To run rootless, follow these steps:
     ```sh
     sudo udevadm control --reload-rules
     sudo udevadm trigger
-    sudo rm -f /tmp/.keylogger.log
     ```
