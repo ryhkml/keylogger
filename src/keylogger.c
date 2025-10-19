@@ -7,10 +7,7 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "behavior_subject.h"
-#include "util.h"
-
-static const KeyMap key_map[] = {
+static const key_map_t key_map[] = {
     [KEY_A] = {"a",           "A",           "A",           "a"          },
     [KEY_B] = {"b",           "B",           "B",           "b"          },
     [KEY_C] = {"c",           "C",           "C",           "c"          },
@@ -85,6 +82,16 @@ static const KeyMap key_map[] = {
     [KEY_DELETE] = {"Del",         "Del",         "Del",         "Del"        },
     [KEY_CAPSLOCK] = {"CapsLock",    "CapsLock",    "CapsLock",    "CapsLock"   },
 };
+
+static char *mstrdup(const char *value) {
+    if (!value) return NULL;
+
+    size_t len = strlen(value) + 1;
+    void *new_value = malloc(len);
+    if (!new_value) return NULL;
+
+    return (char *)memcpy(new_value, value, len);
+}
 
 const char *get_key_name(uint16_t key_code, bool shift_pressed, bool capslock_active) {
     if (key_code < (sizeof(key_map) / sizeof(key_map[0])) && key_map[key_code].normal != NULL) {
@@ -186,54 +193,4 @@ char *get_keyboard_name(const char *path) {
     }
 
     return mstrdup(tmp);
-}
-
-void log_key(FILE *f, BehaviorSubject *subject, bool ctrl_pressed, bool meta_pressed, bool alt_pressed,
-             const char *key_name) {
-    if (!key_name) return;
-
-    bool is_modifier = (strcmp(key_name, "Shift") == 0 || strcmp(key_name, "Ctrl") == 0 ||
-                        strcmp(key_name, "Meta") == 0 || strcmp(key_name, "Alt") == 0);
-
-    if (is_modifier) {
-        next(subject, key_name);
-        if (f) fprintf(f, "%s\n", key_name);
-        return;
-    }
-
-    char combined_key[MAX_KEY_LEN] = {0};
-    size_t pos = 0;
-
-    if (ctrl_pressed) {
-        size_t len = strlen("Ctrl+");
-        if (pos + len < MAX_KEY_LEN) {
-            memcpy(combined_key + pos, "Ctrl+", len);
-            pos += len;
-        }
-    }
-    if (meta_pressed) {
-        size_t len = strlen("Meta+");
-        if (pos + len < MAX_KEY_LEN) {
-            memcpy(combined_key + pos, "Meta+", len);
-            pos += len;
-        }
-    }
-    if (alt_pressed) {
-        size_t len = strlen("Alt+");
-        if (pos + len < MAX_KEY_LEN) {
-            memcpy(combined_key + pos, "Alt+", len);
-            pos += len;
-        }
-    }
-
-    size_t key_len = strlen(key_name);
-    if (pos + key_len < MAX_KEY_LEN) {
-        memcpy(combined_key + pos, key_name, key_len);
-        combined_key[pos + key_len] = '\0';
-    } else {
-        combined_key[pos] = '\0';
-    }
-
-    next(subject, combined_key);
-    if (f) fprintf(f, "%s\n", combined_key);
 }

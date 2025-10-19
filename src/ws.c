@@ -1,4 +1,4 @@
-#include "websocket.h"
+#include "ws.h"
 
 #include <libwebsockets.h>
 #include <stdbool.h>
@@ -49,11 +49,13 @@ static struct lws_protocols protocols[] = {
 
 void send_message_to_client(const char *key) {
     if (!client_wsi || !key) return;
+
     size_t n = strlen(key);
     if (n >= MAX_KEY_LEN) return;
 
     unsigned char buf[LWS_PRE + MAX_KEY_LEN];
     unsigned char *p = &buf[LWS_PRE];
+
     memcpy(p, key, n);
     p[n] = '\0';
     lws_write(client_wsi, p, n, LWS_WRITE_TEXT);

@@ -36,10 +36,8 @@ static void test_get_key_name() {
     ASSERT_STR_EQUAL("UNKNOWN", get_key_name(9999, false, false));
 }
 
-//
 // The test function below may cause permission errors because it requires sudo to access /dev/input/event*
 // Run the test with sudo or use the rootless method as described in the README.
-//
 static void test_find_keyboard_device() {
     // Default input
     char *keyboard_path = find_keyboard_device(NULL);
@@ -74,29 +72,12 @@ static void test_get_keyboard_name() {
     // free(my_keyboard_name);
 }
 
-static void test_notify(const char *key) { (void)key; }
-static void test_log_key() {
-    FILE *fp = fopen(LOG_FILE, "w");
-    ASSERT_NOT_NULL(fp);
-
-    BehaviorSubject subject;
-    init_behavior_subject(&subject, "Meta");
-    subscribe(&subject, test_notify);
-
-    log_key(fp, &subject, false, false, false, "Meta");
-    fclose(fp);
-    unsubscribe(&subject);
-
-    ASSERT_INT_EQUAL(0, access(LOG_FILE, F_OK));
-}
-
 int main(void) {
     printf("\nTEST KEYLOGGER\n");
 
     run_test(test_get_key_name);
     run_test(test_find_keyboard_device);
     run_test(test_get_keyboard_name);
-    run_test(test_log_key);
 
     return print_test();
 }
