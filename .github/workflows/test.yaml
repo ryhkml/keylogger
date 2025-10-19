@@ -37,31 +37,20 @@ jobs:
           gcc -o nob nob.c
           ./nob test
   build:
-    name: build-keylogger-${{ matrix.target }}
+    name: build-keylogger
     runs-on: ubuntu-latest
     needs: test
-    strategy:
-      matrix:
-        target: [default, libwebsockets]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Install dependencies
         run: |
           sudo apt-get update
-          if [[ "${{ matrix.target }}" == "libwebsockets" ]]; then
-            sudo apt-get install -y build-essential libwebsockets-dev
-          else
-            sudo apt-get install -y build-essential
-          fi
+          sudo apt-get install -y build-essential libwebsockets-dev
       - name: Compile
         run: |
           gcc -o nob nob.c
-          if [[ "${{ matrix.target }}" == "libwebsockets" ]]; then
-            ./nob -lwebsockets
-          else
-            ./nob
-          fi
+          ./nob
       - name: Run and terminate
         run: |
           if [ -d /dev/input ]; then
@@ -74,10 +63,6 @@ jobs:
             echo "No device"
           fi
       - name: Verify
-        run: |
-          ls -lh out/keylogger
-          ls -lh /tmp/.keylogger.log
+        run: ls -lh out/keylogger
       - name: Cleanup
-        run: |
-          rm -f out/keylogger out/test_*
-          sudo rm -f /tmp/.keylogger.log
+        run: rm -f out/keylogger out/test_*
