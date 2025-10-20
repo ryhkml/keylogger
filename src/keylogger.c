@@ -167,7 +167,7 @@ char *get_keyboard_name(const char *path) {
     size_t sys_path_size = snprintf(NULL, 0, SYS_PATH_DEVICE_NAME, event) + 1;
     char *sys_path_buff = malloc(sys_path_size);
     if (!sys_path_buff) {
-        perror("malloc");
+        perror("Failed to allocate memory");
         return NULL;
     }
     snprintf(sys_path_buff, sys_path_size, SYS_PATH_DEVICE_NAME, event);
@@ -175,7 +175,7 @@ char *get_keyboard_name(const char *path) {
     FILE *file = fopen(sys_path_buff, "r");
     free(sys_path_buff);
     if (!file) {
-        perror("fopen");
+        perror("Failed to fopen");
         return NULL;
     }
 
